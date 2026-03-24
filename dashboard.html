@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PSL Control Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --border: #262626;
+      --text: #fafafa;
+      --muted: #a1a1aa;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --green: #22c55e;
+      --red: #ef4444;
+      --yellow: #eab308;
+      --orange: #f97316;
+      --purple: #a855f7;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --max-w: 1200px;
+      --radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ACCESS DENIED */
+    .access-denied {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; text-align: center;
+    }
+    .access-denied h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+    .access-denied p { color: var(--muted); }
+
+    /* LAYOUT */
+    .dashboard { display: none; }
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+
+    /* HEADER */
+    .dash-header {
+      border-bottom: 1px solid var(--border);
+      padding: 24px 0;
+    }
+    .dash-header-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .dash-title { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; }
+    .dash-title span { color: var(--accent); }
+    .dash-meta { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+    .dash-meta-item { text-align: right; }
+    .dash-meta-item .value { font-size: 1.25rem; font-weight: 800; }
+    .dash-meta-item .label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .dash-meta-item .value.green { color: var(--green); }
+    .dash-meta-item .value.red { color: var(--red); }
+    .dash-meta-item .value.yellow { color: var(--yellow); }
+
+    /* PROGRESS BAR */
+    .progress-section { padding: 24px 0; }
+    .progress-bar-container {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 20px 24px;
+    }
+    .progress-label {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px;
+    }
+    .progress-label span { font-size: 0.875rem; color: var(--muted); }
+    .progress-label strong { font-size: 0.875rem; }
+    .progress-bar {
+      width: 100%; height: 8px; background: var(--border); border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 4px; transition: width 1s ease;
+      background: linear-gradient(90deg, var(--accent), #818cf8);
+    }
+
+    /* METRICS GRID */
+    .metrics { padding: 24px 0; }
+    .metrics-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .metric-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+    }
+    .metric-card .metric-label {
+      font-size: 0.75rem; color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.05em; margin-bottom: 8px;
+    }
+    .metric-card .metric-value { font-size: 1.75rem; font-weight: 800; }
+    .metric-card .metric-sub { font-size: 0.8125rem; color: var(--muted); margin-top: 4px; }
+
+    /* SECTION HEADERS */
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; padding-top: 32px;
+    }
+    .section-header h2 {
+      font-size: 1.125rem; font-weight: 700; letter-spacing: -0.01em;
+    }
+    .section-header .badge {
+      padding: 4px 12px; border-radius: 100px; font-size: 0.75rem; font-weight: 600;
+      background: rgba(59,130,246,0.1); color: var(--accent);
+    }
+
+    /* REVENUE TABLE */
+    .table-container {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .table-container table { width: 100%; border-collapse: collapse; }
+    .table-container th {
+      padding: 12px 16px; text-align: left; font-size: 0.75rem;
+      font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--muted); border-bottom: 1px solid var(--border);
+      background: rgba(20,20,20,0.5);
+    }
+    .table-container td {
+      padding: 12px 16px; font-size: 0.875rem; border-bottom: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .table-container tr:last-child td { border-bottom: none; }
+    .table-container tr:hover td { background: rgba(59,130,246,0.03); }
+    .table-container td:first-child { color: var(--text); font-weight: 600; }
+
+    .status-badge {
+      display: inline-flex; padding: 2px 10px; border-radius: 100px;
+      font-size: 0.75rem; font-weight: 600;
+    }
+    .status-active { background: rgba(34,197,94,0.1); color: var(--green); }
+    .status-churned { background: rgba(239,68,68,0.1); color: var(--red); }
+    .status-paused { background: rgba(234,179,8,0.1); color: var(--yellow); }
+
+    /* PIPELINE */
+    .pipeline-section { padding: 24px 0; }
+    .pipeline-columns {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .pipeline-column {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px; min-height: 200px;
+    }
+    .pipeline-column-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);
+    }
+    .pipeline-column-header h3 {
+      font-size: 0.8125rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .pipeline-column-header .count {
+      font-size: 0.75rem; color: var(--muted);
+      background: var(--bg); padding: 2px 8px; border-radius: 100px;
+    }
+    .pipeline-card {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px; margin-bottom: 8px;
+    }
+    .pipeline-card:last-child { margin-bottom: 0; }
+    .pipeline-card h4 { font-size: 0.875rem; font-weight: 600; margin-bottom: 4px; }
+    .pipeline-card .pipeline-meta {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .pipeline-card .pipeline-meta span {
+      font-size: 0.75rem; color: var(--muted);
+    }
+    .temp-badge {
+      display: inline-flex; padding: 1px 8px; border-radius: 100px;
+      font-size: 0.6875rem; font-weight: 600;
+    }
+    .temp-caliente { background: rgba(239,68,68,0.1); color: var(--red); }
+    .temp-tibio { background: rgba(234,179,8,0.1); color: var(--yellow); }
+    .temp-frio { background: rgba(59,130,246,0.1); color: var(--accent); }
+
+    /* ALERTS */
+    .alerts-section { padding: 24px 0 48px; }
+    .alert-card {
+      background: var(--surface); border: 1px solid rgba(239,68,68,0.3);
+      border-radius: var(--radius); padding: 16px 20px;
+      display: flex; align-items: center; gap: 12px; margin-bottom: 8px;
+    }
+    .alert-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: rgba(239,68,68,0.1); color: var(--red);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.875rem; flex-shrink: 0;
+    }
+    .alert-text { font-size: 0.875rem; }
+    .alert-text strong { color: var(--text); }
+    .alert-text span { color: var(--muted); }
+
+    .no-alerts {
+      background: var(--surface); border: 1px solid rgba(34,197,94,0.3);
+      border-radius: var(--radius); padding: 20px;
+      text-align: center; color: var(--muted); font-size: 0.875rem;
+    }
+
+    /* LOADING */
+    .loading {
+      display: flex; align-items: center; justify-content: center;
+      padding: 40px; color: var(--muted); font-size: 0.875rem;
+    }
+    .spinner {
+      width: 20px; height: 20px; border: 2px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin-right: 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .dash-header-inner { flex-direction: column; align-items: flex-start; }
+      .dash-meta { flex-direction: row; }
+      .dash-meta-item { text-align: left; }
+      .pipeline-columns { grid-template-columns: 1fr; }
+      .table-container { overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ACCESS DENIED -->
+  <div class="access-denied" id="accessDenied" style="display:none;">
+    <div>
+      <h1>Acceso denegado</h1>
+      <p>Token invalido. Contacta al administrador.</p>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard" id="dashboard">
+
+    <!-- HEADER -->
+    <header class="dash-header">
+      <div class="container">
+        <div class="dash-header-inner">
+          <div>
+            <div class="dash-title">PSL <span>Control Center</span></div>
+          </div>
+          <div class="dash-meta">
+            <div class="dash-meta-item">
+              <div class="value green" id="mrrActual">--</div>
+              <div class="label">MRR Actual</div>
+            </div>
+            <div class="dash-meta-item">
+              <div class="value">$450K</div>
+              <div class="label">Meta MRR</div>
+            </div>
+            <div class="dash-meta-item">
+              <div class="value yellow" id="mrrPct">--%</div>
+              <div class="label">Completado</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- PROGRESS -->
+    <section class="progress-section">
+      <div class="container">
+        <div class="progress-bar-container">
+          <div class="progress-label">
+            <span>Progreso hacia meta de $450K MRR</span>
+            <strong id="progressLabel">-- / $450,000</strong>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- METRICS -->
+    <section class="metrics">
+      <div class="container">
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Clientes Activos</div>
+            <div class="metric-value" id="metricClientes">--</div>
+            <div class="metric-sub">Con fee > $0</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">MRR Actual</div>
+            <div class="metric-value" id="metricMRR">--</div>
+            <div class="metric-sub">Marzo 2026</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Gap vs Meta</div>
+            <div class="metric-value" id="metricGap" style="color:var(--red)">--</div>
+            <div class="metric-sub">Falta para $450K</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Clientes Necesarios</div>
+            <div class="metric-value" id="metricNeeded">--</div>
+            <div class="metric-sub">A $25K promedio</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REVENUE TABLE -->
+    <section>
+      <div class="container">
+        <div class="section-header">
+          <h2>Revenue por Cliente — Marzo 2026</h2>
+          <span class="badge" id="revenueBadge">Cargando...</span>
+        </div>
+        <div class="table-container" id="revenueTable">
+          <div class="loading"><div class="spinner"></div>Cargando datos de Supabase...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PIPELINE -->
+    <section class="pipeline-section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Pipeline de Prospectos</h2>
+          <span class="badge" id="pipelineBadge">Cargando...</span>
+        </div>
+        <div class="pipeline-columns" id="pipelineColumns">
+          <div class="loading"><div class="spinner"></div>Cargando pipeline...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ALERTS -->
+    <section class="alerts-section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Alertas</h2>
+        </div>
+        <div id="alertsContainer">
+          <div class="loading"><div class="spinner"></div>Verificando alertas...</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://jeohuwkpermcmzltjmna.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Implb2h1d2twZXJtY216bHRqbW5hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzMzA0NjQsImV4cCI6MjA1NzkwNjQ2NH0.2tmOsey4sSwKRiHv1xjkDhio6RZ8MYn9U5A0GIWJjM0';
+    const MRR_META = 450000;
+
+    // Auth check
+    const token = prompt('Ingresa tu token de acceso:');
+    if (token !== 'psl2026') {
+      document.getElementById('accessDenied').style.display = 'flex';
+    } else {
+      document.getElementById('dashboard').style.display = 'block';
+      initDashboard();
+    }
+
+    async function supabaseGet(path) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!res.ok) throw new Error(`Supabase error: ${res.status}`);
+      return res.json();
+    }
+
+    function formatMXN(n) {
+      if (n == null) return '$0';
+      return '$' + Math.round(n).toLocaleString('es-MX');
+    }
+
+    async function initDashboard() {
+      await Promise.all([
+        loadRevenue(),
+        loadPipeline()
+      ]);
+    }
+
+    async function loadRevenue() {
+      try {
+        const data = await supabaseGet(
+          'revenue_mensual?select=*,clientes(nombre,estado)&mes=eq.2026-03&order=fee_facturado.desc'
+        );
+
+        const activeClients = data.filter(r => r.fee_facturado > 0);
+        const totalMRR = data.reduce((sum, r) => sum + (r.fee_facturado || 0), 0);
+        const totalAdSpend = data.reduce((sum, r) => sum + (r.ad_spend || 0), 0);
+        const gap = MRR_META - totalMRR;
+        const pct = Math.round((totalMRR / MRR_META) * 100);
+        const needed = Math.max(0, Math.ceil(gap / 25000));
+
+        // Update header
+        document.getElementById('mrrActual').textContent = formatMXN(totalMRR);
+        document.getElementById('mrrPct').textContent = pct + '%';
+        document.getElementById('progressLabel').textContent = formatMXN(totalMRR) + ' / $450,000';
+        document.getElementById('progressFill').style.width = Math.min(pct, 100) + '%';
+
+        // Update metrics
+        document.getElementById('metricClientes').textContent = activeClients.length;
+        document.getElementById('metricMRR').textContent = formatMXN(totalMRR);
+        document.getElementById('metricGap').textContent = formatMXN(gap);
+        document.getElementById('metricNeeded').textContent = needed;
+
+        // Update badge
+        document.getElementById('revenueBadge').textContent = data.length + ' registros';
+
+        // Build table
+        let html = '<table><thead><tr>';
+        html += '<th>Cliente</th><th>Fee</th><th>Ad Spend</th><th>Estado</th><th>Gestor</th>';
+        html += '</tr></thead><tbody>';
+
+        if (data.length === 0) {
+          html += '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:40px">No hay datos de revenue para marzo 2026</td></tr>';
+        }
+
+        data.forEach(r => {
+          const nombre = r.clientes ? r.clientes.nombre : (r.cliente_nombre || 'Sin nombre');
+          const estado = r.clientes ? r.clientes.estado : (r.estado || 'activo');
+          const statusClass = estado === 'activo' ? 'status-active' : estado === 'churned' ? 'status-churned' : 'status-paused';
+          html += `<tr>
+            <td>${nombre}</td>
+            <td>${formatMXN(r.fee_facturado)}</td>
+            <td>${formatMXN(r.ad_spend)}</td>
+            <td><span class="status-badge ${statusClass}">${estado}</span></td>
+            <td style="color:var(--muted)">${r.gestor || '-'}</td>
+          </tr>`;
+        });
+
+        html += '</tbody></table>';
+
+        // Total row
+        html = html.replace('</tbody>', `<tr style="border-top:2px solid var(--border);background:rgba(59,130,246,0.03)">
+          <td style="font-weight:800">TOTAL</td>
+          <td style="font-weight:800;color:var(--green)">${formatMXN(totalMRR)}</td>
+          <td style="font-weight:800;color:var(--text)">${formatMXN(totalAdSpend)}</td>
+          <td></td>
+          <td></td>
+        </tr></tbody>`);
+
+        document.getElementById('revenueTable').innerHTML = html;
+
+        // Build alerts
+        buildAlerts(data);
+
+      } catch (err) {
+        console.error('Revenue error:', err);
+        document.getElementById('revenueTable').innerHTML =
+          `<div class="loading" style="color:var(--red)">Error al cargar revenue: ${err.message}</div>`;
+      }
+    }
+
+    async function loadPipeline() {
+      try {
+        const data = await supabaseGet(
+          'prospectos?select=empresa,etapa,temperatura,prioridad,ad_spend_estimado,fecha_proximo_contacto&order=ad_spend_estimado.desc'
+        );
+
+        document.getElementById('pipelineBadge').textContent = data.length + ' prospectos';
+
+        if (data.length === 0) {
+          document.getElementById('pipelineColumns').innerHTML =
+            '<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)">' +
+            '<div style="font-size:1.5rem;margin-bottom:8px">Pipeline vacio</div>' +
+            '<div>No hay prospectos activos. Prioridad #1: llenar el pipeline.</div></div>';
+          return;
+        }
+
+        // Group by etapa
+        const etapas = {};
+        const etapaOrder = ['lead', 'contactado', 'discovery', 'propuesta', 'negociacion', 'cerrado'];
+
+        data.forEach(p => {
+          const etapa = (p.etapa || 'sin_etapa').toLowerCase();
+          if (!etapas[etapa]) etapas[etapa] = [];
+          etapas[etapa].push(p);
+        });
+
+        // Add any etapas not in our order
+        Object.keys(etapas).forEach(e => {
+          if (!etapaOrder.includes(e)) etapaOrder.push(e);
+        });
+
+        let html = '';
+        etapaOrder.forEach(etapa => {
+          const items = etapas[etapa] || [];
+          if (items.length === 0) return;
+
+          const etapaLabel = etapa.charAt(0).toUpperCase() + etapa.slice(1).replace(/_/g, ' ');
+          html += `<div class="pipeline-column">
+            <div class="pipeline-column-header">
+              <h3>${etapaLabel}</h3>
+              <span class="count">${items.length}</span>
+            </div>`;
+
+          items.forEach(p => {
+            const temp = (p.temperatura || 'frio').toLowerCase();
+            const tempClass = temp === 'caliente' ? 'temp-caliente' : temp === 'tibio' ? 'temp-tibio' : 'temp-frio';
+            const fecha = p.fecha_proximo_contacto ? new Date(p.fecha_proximo_contacto).toLocaleDateString('es-MX', { day:'numeric', month:'short' }) : '-';
+
+            html += `<div class="pipeline-card">
+              <h4>${p.empresa || 'Sin nombre'}</h4>
+              <div class="pipeline-meta">
+                <span class="temp-badge ${tempClass}">${temp}</span>
+                ${p.ad_spend_estimado ? `<span>${formatMXN(p.ad_spend_estimado)}/mes</span>` : ''}
+                <span>Sig: ${fecha}</span>
+              </div>
+            </div>`;
+          });
+
+          html += '</div>';
+        });
+
+        document.getElementById('pipelineColumns').innerHTML = html ||
+          '<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--muted)">No hay prospectos</div>';
+
+      } catch (err) {
+        console.error('Pipeline error:', err);
+        document.getElementById('pipelineColumns').innerHTML =
+          `<div class="loading" style="color:var(--red)">Error al cargar pipeline: ${err.message}</div>`;
+      }
+    }
+
+    function buildAlerts(revenueData) {
+      const alerts = [];
+
+      revenueData.forEach(r => {
+        const nombre = r.clientes ? r.clientes.nombre : (r.cliente_nombre || 'Sin nombre');
+        const estado = r.clientes ? r.clientes.estado : (r.estado || 'activo');
+
+        if (r.fee_facturado === 0 || r.fee_facturado === null) {
+          alerts.push({
+            type: 'warning',
+            text: `<strong>${nombre}</strong> <span>tiene fee $0 en marzo 2026. Verificar status.</span>`
+          });
+        }
+
+        if (estado === 'churned') {
+          alerts.push({
+            type: 'danger',
+            text: `<strong>${nombre}</strong> <span>marcado como churned. Revisar si hay oportunidad de reactivacion.</span>`
+          });
+        }
+      });
+
+      const container = document.getElementById('alertsContainer');
+
+      if (alerts.length === 0) {
+        container.innerHTML = '<div class="no-alerts">Sin alertas activas. Todo en orden.</div>';
+        return;
+      }
+
+      let html = '';
+      alerts.forEach(a => {
+        html += `<div class="alert-card">
+          <div class="alert-icon">!</div>
+          <div class="alert-text">${a.text}</div>
+        </div>`;
+      });
+      container.innerHTML = html;
+    }
+  </script>
+
+</body>
+</html>
