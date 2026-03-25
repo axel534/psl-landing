@@ -768,6 +768,10 @@
 
         document.getElementById('leadForm').style.display = 'none';
         document.getElementById('formSuccess').style.display = 'block';
+        // Redirect a Cal.com para agendar después de 2 segundos
+        setTimeout(function() {
+          window.open('https://cal.com/carlos-axel-torres-6hg2ql/15min', '_blank');
+        }, 2000);
       } catch (err) {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Solicitar diagnostico';
