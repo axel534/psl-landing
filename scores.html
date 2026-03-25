@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PSL Sales Scores</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #000000;
+      --surface: #0a0a0a;
+      --surface-2: #141414;
+      --border: #1a1a1a;
+      --text: #ffffff;
+      --muted: #a1a1aa;
+      --accent: #0f42f7;
+      --accent-hover: #0d38d4;
+      --red: #ff0310;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --danger: #ef4444;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --max-w: 1120px;
+      --radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+
+    /* AUTH GATE */
+    #auth-gate {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 16px;
+    }
+    #auth-gate.hidden { display: none; }
+    #auth-gate p { font-size: 1.25rem; font-weight: 700; }
+    #auth-denied { color: var(--danger); font-size: 0.875rem; font-weight: 600; display: none; }
+
+    /* HEADER */
+    .panel-header {
+      padding: 32px 0 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .panel-title-row {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap;
+    }
+    .panel-title {
+      font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+    .badge-live {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 100px;
+      background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2);
+      font-size: 0.75rem; font-weight: 600; color: var(--green);
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .badge-live .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green); animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+    .panel-meta {
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    }
+    .panel-meta span {
+      font-size: 0.8125rem; color: var(--muted);
+    }
+    .btn-refresh {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 8px; font-size: 0.8125rem;
+      font-weight: 600; font-family: var(--font); cursor: pointer;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--muted); transition: all 0.2s; min-height: 36px;
+    }
+    .btn-refresh:hover { border-color: var(--accent); color: var(--text); }
+    .btn-refresh:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .btn-refresh svg { width: 14px; height: 14px; }
+    .btn-refresh.loading svg { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* MRR TRACKER */
+    .mrr-section { padding: 32px 0; }
+    .mrr-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 32px;
+    }
+    .mrr-top {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      margin-bottom: 20px; flex-wrap: wrap; gap: 16px;
+    }
+    .mrr-value { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em; }
+    .mrr-meta { text-align: right; }
+    .mrr-meta .label { font-size: 0.8125rem; color: var(--muted); }
+    .mrr-meta .value { font-size: 1rem; font-weight: 700; }
+    .mrr-bar-track {
+      width: 100%; height: 10px; border-radius: 5px;
+      background: var(--surface-2); overflow: hidden; margin-bottom: 12px;
+    }
+    .mrr-bar-fill {
+      height: 100%; border-radius: 5px;
+      transition: width 0.8s ease, background 0.3s;
+    }
+    .mrr-bottom {
+      display: flex; gap: 24px; flex-wrap: wrap;
+    }
+    .mrr-stat { font-size: 0.8125rem; color: var(--muted); }
+    .mrr-stat strong { color: var(--text); font-weight: 700; }
+
+    /* SECTION TITLE */
+    .section-label {
+      font-size: 0.8125rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--accent); margin-bottom: 16px;
+      padding-top: 40px;
+    }
+
+    /* SCORE CARDS */
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px; margin-bottom: 8px;
+    }
+    .score-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+      transition: border-color 0.2s;
+    }
+    .score-card:hover { border-color: #2a2a2a; }
+    .score-card-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .score-number { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; }
+    .semaphore {
+      width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+    }
+    .sem-green { background: var(--green); box-shadow: 0 0 8px rgba(34,197,94,0.4); }
+    .sem-yellow { background: var(--yellow); box-shadow: 0 0 8px rgba(234,179,8,0.4); }
+    .sem-red { background: var(--danger); box-shadow: 0 0 8px rgba(239,68,68,0.4); }
+    .score-label { font-size: 0.8125rem; color: var(--muted); margin-bottom: 12px; }
+    .mini-bar-track {
+      width: 100%; height: 6px; border-radius: 3px;
+      background: var(--surface-2); overflow: hidden;
+    }
+    .mini-bar-fill {
+      height: 100%; border-radius: 3px;
+      transition: width 0.8s ease;
+    }
+
+    /* CHANNEL CARDS */
+    .channel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px; margin-bottom: 8px;
+    }
+    .channel-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+      transition: border-color 0.2s;
+    }
+    .channel-card:hover { border-color: #2a2a2a; }
+    .channel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .channel-name { font-size: 1rem; font-weight: 700; }
+    .badge {
+      display: inline-flex; padding: 3px 10px; border-radius: 100px;
+      font-size: 0.6875rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .badge-yellow { background: rgba(234,179,8,0.1); border: 1px solid rgba(234,179,8,0.2); color: var(--yellow); }
+    .badge-gray { background: rgba(161,161,170,0.1); border: 1px solid rgba(161,161,170,0.2); color: var(--muted); }
+    .badge-blue { background: rgba(15,66,247,0.1); border: 1px solid rgba(15,66,247,0.2); color: var(--accent); }
+    .channel-metrics { display: flex; flex-direction: column; gap: 8px; }
+    .channel-metric {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.875rem;
+    }
+    .channel-metric .metric-label { color: var(--muted); }
+    .channel-metric .metric-value { font-weight: 600; }
+
+    /* PIPELINE FUNNEL */
+    .funnel-section { margin-bottom: 8px; }
+    .funnel-bar-group {
+      display: flex; flex-direction: column; gap: 10px; margin-top: 4px;
+    }
+    .funnel-row {
+      display: grid; grid-template-columns: 140px 1fr 80px; gap: 12px;
+      align-items: center;
+    }
+    .funnel-stage { font-size: 0.8125rem; font-weight: 600; text-align: right; }
+    .funnel-track {
+      width: 100%; height: 28px; border-radius: 6px;
+      background: var(--surface-2); overflow: hidden; position: relative;
+    }
+    .funnel-fill {
+      height: 100%; border-radius: 6px;
+      transition: width 0.8s ease;
+      display: flex; align-items: center; padding-left: 10px;
+      font-size: 0.75rem; font-weight: 700; color: white;
+      min-width: fit-content;
+    }
+    .funnel-value { font-size: 0.8125rem; color: var(--muted); text-align: right; }
+
+    /* LEADERBOARD TABLE */
+    .leaderboard-section { margin-bottom: 8px; }
+    .lb-table-wrapper {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow-x: auto;
+    }
+    .lb-table {
+      width: 100%; border-collapse: collapse; min-width: 600px;
+    }
+    .lb-table th {
+      text-align: left; padding: 14px 16px;
+      font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .lb-table td {
+      padding: 12px 16px; font-size: 0.875rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .lb-table tr:last-child td { border-bottom: none; }
+    .lb-table tr:hover td { background: var(--surface-2); }
+    .lb-score-bar {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .lb-score-track {
+      width: 80px; height: 6px; border-radius: 3px;
+      background: var(--surface-2); overflow: hidden; flex-shrink: 0;
+    }
+    .lb-score-fill {
+      height: 100%; border-radius: 3px;
+      transition: width 0.6s ease;
+    }
+    .lb-score-num { font-weight: 700; min-width: 28px; }
+
+    /* ACTIVITY TIMELINE */
+    .timeline-section { margin-bottom: 8px; }
+    .timeline-list { display: flex; flex-direction: column; gap: 0; }
+    .timeline-item {
+      display: grid; grid-template-columns: 80px 8px 1fr; gap: 16px;
+      padding: 16px 0; align-items: start;
+      border-bottom: 1px solid var(--border);
+    }
+    .timeline-item:last-child { border-bottom: none; }
+    .timeline-date {
+      font-size: 0.75rem; color: var(--muted); text-align: right; padding-top: 2px;
+    }
+    .timeline-dot-col {
+      display: flex; flex-direction: column; align-items: center; padding-top: 6px;
+    }
+    .timeline-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent); flex-shrink: 0;
+    }
+    .timeline-dot.positive { background: var(--green); }
+    .timeline-dot.negative { background: var(--danger); }
+    .timeline-dot.neutral { background: var(--muted); }
+    .timeline-content {}
+    .timeline-type {
+      font-size: 0.6875rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.05em; color: var(--accent); margin-bottom: 2px;
+    }
+    .timeline-desc { font-size: 0.875rem; color: var(--text); }
+    .timeline-channel {
+      font-size: 0.75rem; color: var(--muted); margin-top: 2px;
+    }
+
+    /* PLAN PROGRESS */
+    .plan-section { padding-bottom: 60px; }
+    .plan-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .plan-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+    }
+    .plan-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .plan-phase { font-size: 0.9375rem; font-weight: 700; }
+    .plan-pct { font-size: 0.8125rem; font-weight: 700; }
+    .plan-bar-track {
+      width: 100%; height: 8px; border-radius: 4px;
+      background: var(--surface-2); overflow: hidden; margin-bottom: 12px;
+    }
+    .plan-bar-fill {
+      height: 100%; border-radius: 4px;
+      transition: width 0.8s ease;
+    }
+    .plan-detail { font-size: 0.75rem; color: var(--muted); }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center; padding: 40px 20px;
+      color: var(--muted); font-size: 0.875rem;
+    }
+
+    /* LOADING */
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface-2) 25%, #1f1f1f 50%, var(--surface-2) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .funnel-row { grid-template-columns: 100px 1fr 60px; }
+      .funnel-stage { font-size: 0.75rem; }
+      .score-grid, .channel-grid { grid-template-columns: 1fr; }
+      .mrr-value { font-size: 2rem; }
+    }
+    @media (max-width: 480px) {
+      .funnel-row { grid-template-columns: 1fr; gap: 4px; }
+      .funnel-stage { text-align: left; }
+      .funnel-value { text-align: left; }
+      .panel-title { font-size: 1.25rem; }
+      .mrr-value { font-size: 1.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- AUTH GATE -->
+<div id="auth-gate">
+  <p>PSL Sales Scores</p>
+  <p id="auth-denied">Acceso denegado</p>
+</div>
+
+<!-- MAIN CONTENT (hidden until auth) -->
+<div id="main-content" style="display:none;">
+  <div class="container">
+
+    <!-- HEADER -->
+    <header class="panel-header">
+      <div class="panel-title-row">
+        <h1 class="panel-title">PSL Sales Scores</h1>
+        <span class="badge-live"><span class="dot"></span> Live</span>
+      </div>
+      <div class="panel-meta">
+        <span id="last-updated">Cargando...</span>
+        <button class="btn-refresh" id="btn-refresh" aria-label="Recargar datos">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+          Refresh
+        </button>
+      </div>
+    </header>
+
+    <!-- 1. MRR TRACKER -->
+    <section class="mrr-section">
+      <div class="section-label">MRR Tracker</div>
+      <div class="mrr-card">
+        <div class="mrr-top">
+          <div>
+            <div class="mrr-value" id="mrr-value">--</div>
+            <div style="font-size:0.8125rem;color:var(--muted);">MRR Actual</div>
+          </div>
+          <div class="mrr-meta">
+            <div class="label">Meta</div>
+            <div class="value">$450,000 MXN</div>
+          </div>
+        </div>
+        <div class="mrr-bar-track">
+          <div class="mrr-bar-fill" id="mrr-bar" style="width:0%;"></div>
+        </div>
+        <div class="mrr-bottom">
+          <span class="mrr-stat" id="mrr-pct">--</span>
+          <span class="mrr-stat">Gap: <strong id="mrr-gap">--</strong></span>
+          <span class="mrr-stat">Clientes necesarios: <strong id="mrr-clients">--</strong></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. SCORE CARDS -->
+    <section>
+      <div class="section-label">Metricas de Velocidad</div>
+      <div class="score-grid" id="score-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- 3. CANALES DE ADQUISICION -->
+    <section>
+      <div class="section-label">Canales de Adquisicion</div>
+      <div class="channel-grid" id="channel-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- 4. PIPELINE POR ETAPA -->
+    <section class="funnel-section">
+      <div class="section-label">Pipeline por Etapa</div>
+      <div class="funnel-bar-group" id="funnel-bars">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- 5. MEDDPICC LEADERBOARD -->
+    <section class="leaderboard-section">
+      <div class="section-label">MEDDPICC Leaderboard</div>
+      <div class="lb-table-wrapper">
+        <table class="lb-table">
+          <thead>
+            <tr>
+              <th>Empresa</th>
+              <th>Etapa</th>
+              <th>MEDDPICC</th>
+              <th>Fee Propuesto</th>
+              <th>Proximo Contacto</th>
+            </tr>
+          </thead>
+          <tbody id="lb-body">
+            <tr><td colspan="5" class="empty-state">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 6. ACTIVIDAD RECIENTE -->
+    <section class="timeline-section">
+      <div class="section-label">Actividad Reciente</div>
+      <div class="timeline-list" id="timeline-list">
+        <div class="empty-state">Cargando...</div>
+      </div>
+    </section>
+
+    <!-- 7. PLAN PROGRESS -->
+    <section class="plan-section">
+      <div class="section-label">Progreso del Plan</div>
+      <div class="plan-grid" id="plan-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+  // ── AUTH ──
+  (function authGate() {
+    var token = prompt('Token de acceso:');
+    if (token !== 'psl2026') {
+      document.getElementById('auth-denied').style.display = 'block';
+      return;
+    }
+    document.getElementById('auth-gate').classList.add('hidden');
+    document.getElementById('main-content').style.display = 'block';
+    initDashboard();
+  })();
+
+  // ── CONFIG ──
+  var SUPABASE_URL = 'https://jeohuwkpermcmzltjmna.supabase.co';
+  var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Implb2h1d2twZXJtY216bHRqbW5hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzMzA0NjQsImV4cCI6MjA1NzkwNjQ2NH0.2tmOsey4sSwKRiHv1xjkDhio6RZ8MYn9U5A0GIWJjM0';
+  var MRR_TARGET = 450000;
+  var AVG_CLIENT_FEE = 25000;
+
+  function supaFetch(path) {
+    return fetch(SUPABASE_URL + '/rest/v1/' + path, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Accept': 'application/json'
+      }
+    }).then(function(r) { return r.json(); });
+  }
+
+  function supaRpc(fn, body) {
+    return fetch(SUPABASE_URL + '/rest/v1/rpc/' + fn, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(body || {})
+    }).then(function(r) { return r.json(); });
+  }
+
+  // ── HELPERS ──
+  function fmt(n) {
+    if (n == null || isNaN(n)) return '--';
+    return '$' + Number(n).toLocaleString('es-MX', { maximumFractionDigits: 0 });
+  }
+
+  function fmtDate(d) {
+    if (!d) return '--';
+    var dt = new Date(d);
+    var dd = String(dt.getDate()).padStart(2, '0');
+    var mm = String(dt.getMonth() + 1).padStart(2, '0');
+    return dd + '/' + mm;
+  }
+
+  function semClass(value, thresholds, invert) {
+    // thresholds = { green: X, yellow: Y }
+    // invert = true means lower is better
+    if (invert) {
+      if (value < thresholds.green) return 'sem-green';
+      if (value <= thresholds.yellow) return 'sem-yellow';
+      return 'sem-red';
+    }
+    if (value > thresholds.green) return 'sem-green';
+    if (value >= thresholds.yellow) return 'sem-yellow';
+    return 'sem-red';
+  }
+
+  function barColor(cls) {
+    if (cls === 'sem-green') return 'var(--green)';
+    if (cls === 'sem-yellow') return 'var(--yellow)';
+    return 'var(--danger)';
+  }
+
+  function mrrBarColor(pct) {
+    if (pct > 80) return 'var(--green)';
+    if (pct >= 50) return 'var(--yellow)';
+    return 'var(--accent)';
+  }
+
+  // ── RENDERERS ──
+  function renderMRR(mrr) {
+    var pct = Math.min((mrr / MRR_TARGET) * 100, 100);
+    var gap = Math.max(MRR_TARGET - mrr, 0);
+    var needed = gap > 0 ? Math.ceil(gap / AVG_CLIENT_FEE) : 0;
+
+    document.getElementById('mrr-value').textContent = fmt(mrr);
+    document.getElementById('mrr-pct').innerHTML = '<strong>' + pct.toFixed(1) + '%</strong> de la meta';
+    document.getElementById('mrr-gap').textContent = fmt(gap);
+    document.getElementById('mrr-clients').textContent = needed;
+
+    var bar = document.getElementById('mrr-bar');
+    bar.style.background = mrrBarColor(pct);
+    requestAnimationFrame(function() {
+      bar.style.width = pct + '%';
+    });
+  }
+
+  function renderScoreCards(data) {
+    var cards = [
+      { label: 'Pipeline Value', value: fmt(data.pipelineValue), raw: data.pipelineValue, sem: semClass(data.pipelineValue, { green: MRR_TARGET * 3, yellow: MRR_TARGET * 2 }), pct: Math.min((data.pipelineValue / (MRR_TARGET * 3)) * 100, 100) },
+      { label: 'Prospectos Activos', value: data.activeProspects, raw: data.activeProspects, sem: semClass(data.activeProspects, { green: 30, yellow: 15 }), pct: Math.min((data.activeProspects / 30) * 100, 100) },
+      { label: 'MEDDPICC Promedio', value: data.avgMeddpicc != null ? data.avgMeddpicc.toFixed(1) : '--', raw: data.avgMeddpicc || 0, sem: semClass(data.avgMeddpicc || 0, { green: 25, yellow: 15 }), pct: Math.min(((data.avgMeddpicc || 0) / 35) * 100, 100) },
+      { label: 'Actividades (7 dias)', value: data.weekActivities, raw: data.weekActivities, sem: semClass(data.weekActivities, { green: 20, yellow: 10 }), pct: Math.min((data.weekActivities / 20) * 100, 100) },
+      { label: 'Deals Calificados (>25)', value: data.qualifiedDeals, raw: data.qualifiedDeals, sem: semClass(data.qualifiedDeals, { green: 5, yellow: 2 }), pct: Math.min((data.qualifiedDeals / 5) * 100, 100) },
+      { label: 'Pendientes Hoy', value: data.pendingToday, raw: data.pendingToday, sem: semClass(data.pendingToday, { green: 5, yellow: 10 }, true), pct: Math.min((data.pendingToday / 15) * 100, 100) }
+    ];
+
+    var html = '';
+    cards.forEach(function(c) {
+      html += '<div class="score-card">' +
+        '<div class="score-card-top">' +
+          '<span class="score-number">' + c.value + '</span>' +
+          '<span class="semaphore ' + c.sem + '"></span>' +
+        '</div>' +
+        '<div class="score-label">' + c.label + '</div>' +
+        '<div class="mini-bar-track"><div class="mini-bar-fill" style="width:' + c.pct + '%;background:' + barColor(c.sem) + ';"></div></div>' +
+      '</div>';
+    });
+    document.getElementById('score-grid').innerHTML = html;
+  }
+
+  function renderChannels() {
+    var channels = [
+      {
+        name: 'Cold Email (Instantly)',
+        badge: 'Warm-up activo', badgeClass: 'badge-yellow',
+        metrics: [
+          { label: 'Emails enviados/mes', value: '0' },
+          { label: 'Open rate', value: '--' },
+          { label: 'Reply rate', value: '--' },
+          { label: 'Meetings booked', value: '--' }
+        ]
+      },
+      {
+        name: 'LinkedIn Outbound',
+        badge: 'Por activar', badgeClass: 'badge-gray',
+        metrics: [
+          { label: 'Conexiones/semana', value: '0' },
+          { label: 'Mensajes enviados', value: '0' },
+          { label: 'Conversations', value: '0' }
+        ]
+      },
+      {
+        name: 'LinkedIn Organico',
+        badge: '30 posts listos', badgeClass: 'badge-blue',
+        metrics: [
+          { label: 'Posts publicados/mes', value: '0' },
+          { label: 'Impresiones', value: '--' },
+          { label: 'Inbounds', value: '0' }
+        ]
+      },
+      {
+        name: 'Instagram',
+        badge: '16 posts listos', badgeClass: 'badge-blue',
+        metrics: [
+          { label: 'Posts publicados/mes', value: '0' },
+          { label: 'Reach', value: '--' },
+          { label: 'DMs enviados', value: '0' }
+        ]
+      },
+      {
+        name: 'Referidos',
+        badge: 'Por activar', badgeClass: 'badge-gray',
+        metrics: [
+          { label: 'Asks/mes', value: '0' },
+          { label: 'Referidos recibidos', value: '0' },
+          { label: 'Meetings', value: '0' }
+        ]
+      },
+      {
+        name: 'Meta Ads',
+        badge: 'Pendiente', badgeClass: 'badge-gray',
+        metrics: [
+          { label: 'Spend/mes', value: '$0' },
+          { label: 'Leads', value: '0' },
+          { label: 'CPL', value: '--' }
+        ]
+      }
+    ];
+
+    var html = '';
+    channels.forEach(function(ch) {
+      var metricsHtml = '';
+      ch.metrics.forEach(function(m) {
+        metricsHtml += '<div class="channel-metric"><span class="metric-label">' + m.label + '</span><span class="metric-value">' + m.value + '</span></div>';
+      });
+      html += '<div class="channel-card">' +
+        '<div class="channel-header">' +
+          '<span class="channel-name">' + ch.name + '</span>' +
+          '<span class="badge ' + ch.badgeClass + '">' + ch.badge + '</span>' +
+        '</div>' +
+        '<div class="channel-metrics">' + metricsHtml + '</div>' +
+      '</div>';
+    });
+    document.getElementById('channel-grid').innerHTML = html;
+  }
+
+  var STAGE_COLORS = {
+    'identificado': '#6366f1',
+    'contactado': '#8b5cf6',
+    'discovery': '#0f42f7',
+    'propuesta': '#eab308',
+    'negociacion': '#f97316',
+    'cerrado_ganado': '#22c55e',
+    'cerrado_perdido': '#ef4444'
+  };
+
+  var STAGE_LABELS = {
+    'identificado': 'Identificado',
+    'contactado': 'Contactado',
+    'discovery': 'Discovery',
+    'propuesta': 'Propuesta',
+    'negociacion': 'Negociacion',
+    'cerrado_ganado': 'Cerrado Ganado',
+    'cerrado_perdido': 'Cerrado Perdido'
+  };
+
+  function renderFunnel(stages) {
+    var order = ['identificado', 'contactado', 'discovery', 'propuesta', 'negociacion', 'cerrado_ganado'];
+    var maxCount = 1;
+    stages.forEach(function(s) { if (s.count > maxCount) maxCount = s.count; });
+
+    var stageMap = {};
+    stages.forEach(function(s) { stageMap[s.etapa] = s; });
+
+    var html = '';
+    order.forEach(function(key) {
+      var s = stageMap[key] || { count: 0, total_fee: 0 };
+      var pct = (s.count / maxCount) * 100;
+      var color = STAGE_COLORS[key] || 'var(--accent)';
+      var label = STAGE_LABELS[key] || key;
+      html += '<div class="funnel-row">' +
+        '<span class="funnel-stage">' + label + '</span>' +
+        '<div class="funnel-track"><div class="funnel-fill" style="width:' + Math.max(pct, 4) + '%;background:' + color + ';">' + s.count + '</div></div>' +
+        '<span class="funnel-value">' + fmt(s.total_fee) + '</span>' +
+      '</div>';
+    });
+    document.getElementById('funnel-bars').innerHTML = html;
+  }
+
+  function renderLeaderboard(prospects) {
+    if (!prospects || prospects.length === 0) {
+      document.getElementById('lb-body').innerHTML = '<tr><td colspan="5" class="empty-state">Sin prospectos activos</td></tr>';
+      return;
+    }
+    var html = '';
+    prospects.forEach(function(p) {
+      var score = p.meddpicc_total || 0;
+      var pct = Math.min((score / 35) * 100, 100);
+      var color = score >= 25 ? 'var(--green)' : (score >= 15 ? 'var(--yellow)' : 'var(--danger)');
+      var stageLabel = STAGE_LABELS[p.etapa] || p.etapa || '--';
+      html += '<tr>' +
+        '<td style="font-weight:600;">' + (p.empresa || '--') + '</td>' +
+        '<td>' + stageLabel + '</td>' +
+        '<td><div class="lb-score-bar"><span class="lb-score-num">' + score + '</span><div class="lb-score-track"><div class="lb-score-fill" style="width:' + pct + '%;background:' + color + ';"></div></div></div></td>' +
+        '<td>' + fmt(p.fee_propuesto) + '</td>' +
+        '<td>' + fmtDate(p.fecha_proximo_contacto) + '</td>' +
+      '</tr>';
+    });
+    document.getElementById('lb-body').innerHTML = html;
+  }
+
+  function renderTimeline(activities) {
+    if (!activities || activities.length === 0) {
+      document.getElementById('timeline-list').innerHTML = '<div class="empty-state">Sin actividad reciente</div>';
+      return;
+    }
+    var html = '';
+    activities.forEach(function(a) {
+      var dotClass = 'timeline-dot';
+      if (a.resultado === 'positivo') dotClass += ' positive';
+      else if (a.resultado === 'negativo') dotClass += ' negative';
+      else dotClass += ' neutral';
+
+      html += '<div class="timeline-item">' +
+        '<div class="timeline-date">' + fmtDate(a.fecha) + '</div>' +
+        '<div class="timeline-dot-col"><span class="' + dotClass + '"></span></div>' +
+        '<div class="timeline-content">' +
+          '<div class="timeline-type">' + (a.tipo || '--') + '</div>' +
+          '<div class="timeline-desc">' + (a.descripcion || '--') + '</div>' +
+          (a.canal ? '<div class="timeline-channel">' + a.canal + '</div>' : '') +
+        '</div>' +
+      '</div>';
+    });
+    document.getElementById('timeline-list').innerHTML = html;
+  }
+
+  function renderPlan() {
+    var phases = [
+      { name: 'Fase 1: Infraestructura', done: 6, total: 13 },
+      { name: 'Fase 2: Activacion', done: 0, total: 6 },
+      { name: 'Fase 3: Momentum', done: 0, total: 5 },
+      { name: 'Fase 4: Escala', done: 0, total: 4 }
+    ];
+
+    var html = '';
+    phases.forEach(function(ph) {
+      var pct = Math.round((ph.done / ph.total) * 100);
+      var color = pct >= 80 ? 'var(--green)' : (pct >= 40 ? 'var(--yellow)' : 'var(--accent)');
+      html += '<div class="plan-card">' +
+        '<div class="plan-card-header">' +
+          '<span class="plan-phase">' + ph.name + '</span>' +
+          '<span class="plan-pct" style="color:' + color + ';">' + pct + '%</span>' +
+        '</div>' +
+        '<div class="plan-bar-track"><div class="plan-bar-fill" style="width:' + pct + '%;background:' + color + ';"></div></div>' +
+        '<div class="plan-detail">' + ph.done + ' / ' + ph.total + ' completados</div>' +
+      '</div>';
+    });
+    document.getElementById('plan-grid').innerHTML = html;
+  }
+
+  // ── DATA FETCHING ──
+  function fetchAll() {
+    var btn = document.getElementById('btn-refresh');
+    btn.classList.add('loading');
+
+    var sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    var weekStart = sevenDaysAgo.toISOString().split('T')[0];
+
+    var requests = {
+      // MRR: sum fee_facturado for current month active clients
+      mrr: supaFetch('revenue_mensual?select=fee_facturado&mes=eq.2026-03&fee_facturado=gt.0'),
+
+      // Pipeline value & active prospects
+      prospects: supaFetch('prospectos?select=empresa,etapa,fee_propuesto,meddpicc_total,fecha_proximo_contacto&etapa=not.in.(cerrado_ganado,cerrado_perdido)&order=meddpicc_total.desc.nullslast&limit=15'),
+
+      // All active prospects for aggregates
+      allProspects: supaFetch('prospectos?select=fee_propuesto,meddpicc_total&etapa=not.in.(cerrado_ganado,cerrado_perdido)'),
+
+      // Activities this week
+      weekActivities: supaFetch('actividades_comerciales?select=id&fecha=gte.' + weekStart),
+
+      // Recent activities
+      recentActivities: supaFetch('actividades_comerciales?select=tipo,descripcion,resultado,fecha,canal&order=fecha.desc&limit=10'),
+
+      // Pipeline by stage
+      pipelineStages: supaFetch('prospectos?select=etapa,fee_propuesto'),
+
+      // Pending today
+      pendingToday: supaFetch('v_crm_actividad_pendiente?select=id')
+    };
+
+    Promise.all([
+      requests.mrr,
+      requests.prospects,
+      requests.allProspects,
+      requests.weekActivities,
+      requests.recentActivities,
+      requests.pipelineStages,
+      requests.pendingToday
+    ]).then(function(results) {
+      var mrrData = results[0];
+      var prospects = results[1];
+      var allProspects = results[2];
+      var weekActs = results[3];
+      var recentActs = results[4];
+      var pipelineRaw = results[5];
+      var pendingRaw = results[6];
+
+      // MRR
+      var totalMRR = 0;
+      if (Array.isArray(mrrData)) {
+        mrrData.forEach(function(r) { totalMRR += (r.fee_facturado || 0); });
+      }
+      renderMRR(totalMRR);
+
+      // Score card data
+      var pipelineValue = 0;
+      var meddpiccValues = [];
+      var qualifiedDeals = 0;
+      if (Array.isArray(allProspects)) {
+        allProspects.forEach(function(p) {
+          pipelineValue += (p.fee_propuesto || 0);
+          if (p.meddpicc_total > 0) meddpiccValues.push(p.meddpicc_total);
+          if (p.meddpicc_total >= 25) qualifiedDeals++;
+        });
+      }
+      var avgMeddpicc = meddpiccValues.length > 0 ? meddpiccValues.reduce(function(a, b) { return a + b; }, 0) / meddpiccValues.length : null;
+
+      renderScoreCards({
+        pipelineValue: pipelineValue,
+        activeProspects: Array.isArray(allProspects) ? allProspects.length : 0,
+        avgMeddpicc: avgMeddpicc,
+        weekActivities: Array.isArray(weekActs) ? weekActs.length : 0,
+        qualifiedDeals: qualifiedDeals,
+        pendingToday: Array.isArray(pendingRaw) ? pendingRaw.length : 0
+      });
+
+      // Pipeline funnel
+      var stageMap = {};
+      if (Array.isArray(pipelineRaw)) {
+        pipelineRaw.forEach(function(p) {
+          var e = p.etapa || 'desconocido';
+          if (!stageMap[e]) stageMap[e] = { etapa: e, count: 0, total_fee: 0 };
+          stageMap[e].count++;
+          stageMap[e].total_fee += (p.fee_propuesto || 0);
+        });
+      }
+      var stageArray = Object.keys(stageMap).map(function(k) { return stageMap[k]; });
+      renderFunnel(stageArray);
+
+      // Leaderboard
+      renderLeaderboard(Array.isArray(prospects) ? prospects : []);
+
+      // Timeline
+      renderTimeline(Array.isArray(recentActs) ? recentActs : []);
+
+      // Channels (hardcoded)
+      renderChannels();
+
+      // Plan (hardcoded)
+      renderPlan();
+
+      // Update timestamp
+      var now = new Date();
+      document.getElementById('last-updated').textContent = 'Actualizado: ' + now.toLocaleString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+      btn.classList.remove('loading');
+    }).catch(function(err) {
+      console.error('Error fetching data:', err);
+      document.getElementById('last-updated').textContent = 'Error al cargar datos';
+      btn.classList.remove('loading');
+    });
+  }
+
+  function initDashboard() {
+    fetchAll();
+    document.getElementById('btn-refresh').addEventListener('click', fetchAll);
+  }
+</script>
+</body>
+</html>
