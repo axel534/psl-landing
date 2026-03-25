@@ -312,6 +312,94 @@
     }
     .plan-detail { font-size: 0.75rem; color: var(--muted); }
 
+    /* HEALTH METRICS SECTION */
+    .health-section { padding-bottom: 60px; }
+    .health-summary {
+      background: var(--surface-2); border-left: 4px solid var(--yellow);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 16px 24px; margin-bottom: 24px;
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+      font-size: 0.875rem;
+    }
+    .health-summary-title {
+      font-weight: 800; font-size: 0.75rem; text-transform: uppercase;
+      letter-spacing: 0.08em; white-space: nowrap;
+    }
+    .health-summary-items {
+      display: flex; gap: 20px; flex-wrap: wrap; align-items: center;
+    }
+    .health-summary-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.8125rem; color: var(--muted);
+    }
+    .health-summary-item strong { color: var(--text); font-weight: 600; }
+
+    .health-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .health-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+      transition: border-color 0.2s;
+    }
+    .health-card:hover { border-color: #2a2a2a; }
+    .health-card[data-sem="green"]:hover { border-color: var(--green); }
+    .health-card[data-sem="yellow"]:hover { border-color: var(--yellow); }
+    .health-card[data-sem="red"]:hover { border-color: var(--danger); }
+    .health-card[data-sem="gray"]:hover { border-color: var(--muted); }
+
+    .health-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .health-card-title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 1rem; font-weight: 700;
+    }
+    .health-card-title svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    .health-metric-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 6px 0;
+    }
+    .health-metric-label {
+      font-size: 0.8125rem; color: var(--muted); flex: 1; min-width: 0;
+    }
+    .health-metric-value {
+      font-size: 0.8125rem; font-weight: 700; min-width: 48px; text-align: right;
+    }
+    .health-metric-bar {
+      width: 60px; height: 6px; border-radius: 3px;
+      background: var(--surface-2); overflow: hidden; flex-shrink: 0;
+    }
+    .health-metric-bar-fill {
+      height: 100%; border-radius: 3px;
+      transition: width 0.8s ease;
+    }
+    .health-metric-sem {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+
+    .health-badge {
+      display: inline-flex; padding: 4px 12px; border-radius: 100px;
+      font-size: 0.6875rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.04em; margin-top: 16px;
+    }
+    .health-badge-green { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); color: var(--green); }
+    .health-badge-yellow { background: rgba(234,179,8,0.1); border: 1px solid rgba(234,179,8,0.2); color: var(--yellow); }
+    .health-badge-red { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: var(--danger); }
+    .health-badge-blue { background: rgba(15,66,247,0.1); border: 1px solid rgba(15,66,247,0.2); color: var(--accent); }
+    .health-badge-gray { background: rgba(161,161,170,0.1); border: 1px solid rgba(161,161,170,0.2); color: var(--muted); }
+
+    @media (max-width: 1024px) {
+      .health-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .health-grid { grid-template-columns: 1fr; }
+    }
+
     /* EMPTY STATE */
     .empty-state {
       text-align: center; padding: 40px 20px;
@@ -452,6 +540,17 @@
     <section class="plan-section">
       <div class="section-label">Progreso del Plan</div>
       <div class="plan-grid" id="plan-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- 8. HEALTH METRICS POR CANAL -->
+    <section class="health-section">
+      <div class="section-label">Health Metrics — Monitoreo de Canales</div>
+      <div class="health-summary" id="health-summary">
+        <!-- Rendered by JS -->
+      </div>
+      <div class="health-grid" id="health-grid">
         <!-- Rendered by JS -->
       </div>
     </section>
@@ -772,6 +871,206 @@
     document.getElementById('plan-grid').innerHTML = html;
   }
 
+  // ── HEALTH METRICS ──
+
+  // SVG icons for health cards
+  var HEALTH_ICONS = {
+    email: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>',
+    linkedin: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>',
+    megaphone: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>',
+    instagram: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>',
+    landing: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>',
+    pipeline: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>'
+  };
+
+  // Semaphore SVG circle (10px)
+  function semCircle(color) {
+    var fill = color === 'green' ? 'var(--green)' : (color === 'yellow' ? 'var(--yellow)' : (color === 'red' ? 'var(--danger)' : 'var(--muted)'));
+    var shadow = color === 'green' ? 'rgba(34,197,94,0.4)' : (color === 'yellow' ? 'rgba(234,179,8,0.4)' : (color === 'red' ? 'rgba(239,68,68,0.4)' : 'rgba(161,161,170,0.3)'));
+    return '<svg width="10" height="10" viewBox="0 0 10 10" style="filter:drop-shadow(0 0 4px ' + shadow + ');"><circle cx="5" cy="5" r="5" fill="' + fill + '"/></svg>';
+  }
+
+  function healthSem(value, thresholds) {
+    // thresholds: { green: X, yellow: Y, invert: bool }
+    // invert: lower is better (e.g. bounce rate)
+    if (thresholds.invert) {
+      if (value <= thresholds.green) return 'green';
+      if (value <= thresholds.yellow) return 'yellow';
+      return 'red';
+    }
+    if (value >= thresholds.green) return 'green';
+    if (value >= thresholds.yellow) return 'yellow';
+    return 'red';
+  }
+
+  function healthBarPct(value, meta, invert) {
+    if (invert) {
+      // For inverted metrics: 0% of meta = 100% bar (perfect), at meta = 50%, above meta = low
+      if (meta === 0) return value === 0 ? 100 : 0;
+      var ratio = 1 - (value / (meta * 2));
+      return Math.max(0, Math.min(100, ratio * 100));
+    }
+    if (meta === 0) return 0;
+    return Math.min(100, (value / meta) * 100);
+  }
+
+  function renderHealthMetricRow(m) {
+    var sem = healthSem(m.value, m.thresholds);
+    var pct = healthBarPct(m.value, m.meta, m.thresholds.invert);
+    var fillColor = sem === 'green' ? 'var(--green)' : (sem === 'yellow' ? 'var(--yellow)' : 'var(--danger)');
+    return '<div class="health-metric-row">' +
+      '<span class="health-metric-label">' + m.label + '</span>' +
+      '<span class="health-metric-value">' + m.display + '</span>' +
+      '<div class="health-metric-bar"><div class="health-metric-bar-fill" style="width:' + pct + '%;background:' + fillColor + ';"></div></div>' +
+      '<span class="health-metric-sem">' + semCircle(sem) + '</span>' +
+    '</div>';
+  }
+
+  function avgSemaphore(metrics) {
+    var scores = { green: 3, yellow: 2, red: 1 };
+    var total = 0;
+    metrics.forEach(function(m) {
+      total += scores[healthSem(m.value, m.thresholds)] || 1;
+    });
+    var avg = total / metrics.length;
+    if (avg >= 2.5) return 'green';
+    if (avg >= 1.5) return 'yellow';
+    return 'red';
+  }
+
+  function renderHealthCards(pipelineData) {
+    // Card definitions
+    // TODO: Connect to Instantly API for real cold email data
+    var coldEmailMetrics = [
+      { label: 'Deliverability', value: 0, display: '0%', meta: 95, thresholds: { green: 95, yellow: 90, invert: false } },
+      { label: 'Bounce rate', value: 0, display: '0%', meta: 3, thresholds: { green: 3, yellow: 5, invert: true } },
+      { label: 'Spam complaints', value: 0, display: '0%', meta: 0, thresholds: { green: 0, yellow: 0.05, invert: true } },
+      { label: 'Open rate', value: 0, display: '0%', meta: 45, thresholds: { green: 45, yellow: 25, invert: false } },
+      { label: 'Reply rate', value: 0, display: '0%', meta: 8, thresholds: { green: 8, yellow: 3, invert: false } },
+      { label: 'Warm-up score', value: 0, display: '0', meta: 90, thresholds: { green: 90, yellow: 70, invert: false } }
+    ];
+
+    // TODO: Connect to LinkedIn API / PhantomBuster for outbound data
+    var linkedInOutMetrics = [
+      { label: 'Acceptance rate', value: 0, display: '0%', meta: 30, thresholds: { green: 30, yellow: 15, invert: false } },
+      { label: 'Reply rate DM', value: 0, display: '0%', meta: 15, thresholds: { green: 15, yellow: 5, invert: false } },
+      { label: 'Conv a call', value: 0, display: '0%', meta: 20, thresholds: { green: 20, yellow: 10, invert: false } },
+      { label: 'SSI Score', value: 0, display: '0', meta: 60, thresholds: { green: 60, yellow: 40, invert: false } }
+    ];
+
+    // TODO: Connect to LinkedIn API for organic analytics
+    var linkedInOrgMetrics = [
+      { label: 'Impresiones/post', value: 0, display: '0', meta: 2000, thresholds: { green: 2000, yellow: 500, invert: false } },
+      { label: 'Engagement rate', value: 0, display: '0%', meta: 3, thresholds: { green: 3, yellow: 1.5, invert: false } },
+      { label: 'Inbounds/mes', value: 0, display: '0', meta: 3, thresholds: { green: 3, yellow: 1, invert: false } },
+      { label: 'Seguidores nuevos/sem', value: 0, display: '0', meta: 20, thresholds: { green: 20, yellow: 10, invert: false } }
+    ];
+
+    // TODO: Connect to Instagram Graph API for analytics
+    var instagramMetrics = [
+      { label: 'Reach/post', value: 0, display: '0', meta: 1000, thresholds: { green: 1000, yellow: 300, invert: false } },
+      { label: 'Saves + Shares', value: 0, display: '0%', meta: 2, thresholds: { green: 2, yellow: 1, invert: false } },
+      { label: 'DM replies', value: 0, display: '0%', meta: 5, thresholds: { green: 5, yellow: 2, invert: false } },
+      { label: 'Seguidores/sem', value: 0, display: '0', meta: 15, thresholds: { green: 15, yellow: 5, invert: false } }
+    ];
+
+    // TODO: Connect to Google Analytics / Vercel Analytics for landing data
+    var landingMetrics = [
+      { label: 'Conversion rate', value: 0, display: '0%', meta: 5, thresholds: { green: 5, yellow: 2, invert: false } },
+      { label: 'WhatsApp clicks', value: 0, display: '0%', meta: 8, thresholds: { green: 8, yellow: 4, invert: false } },
+      { label: 'Bounce rate', value: 0, display: '0%', meta: 60, thresholds: { green: 60, yellow: 80, invert: true } },
+      { label: 'Tiempo en pagina', value: 0, display: '0s', meta: 45, thresholds: { green: 45, yellow: 20, invert: false } }
+    ];
+
+    // Pipeline Health — uses real Supabase data
+    var coverage = pipelineData.pipelineValue > 0 ? (pipelineData.pipelineValue / (MRR_TARGET * 3)) * 3 : 0;
+    var coverageDisplay = coverage.toFixed(1) + 'x';
+    var coverageSem = coverage >= 3 ? 'green' : (coverage >= 1.5 ? 'yellow' : 'red');
+
+    var pipelineMetrics = [
+      { label: 'Pipeline coverage', value: coverage, display: coverageDisplay, meta: 3, thresholds: { green: 3, yellow: 1.5, invert: false } },
+      { label: 'Velocity', value: 0, display: '0 dias', meta: 7, thresholds: { green: 7, yellow: 14, invert: true } },
+      { label: 'Win rate', value: 0, display: '0%', meta: 30, thresholds: { green: 30, yellow: 15, invert: false } },
+      { label: 'Ciclo de venta', value: 0, display: '0 dias', meta: 21, thresholds: { green: 21, yellow: 35, invert: true } },
+      { label: 'Forecast accuracy', value: 0, display: '--', meta: 10, thresholds: { green: 10, yellow: 20, invert: true } }
+    ];
+
+    var pipelineBadgeClass = coverageSem === 'green' ? 'health-badge-green' : (coverageSem === 'yellow' ? 'health-badge-yellow' : 'health-badge-red');
+    var pipelineBadgeText = pipelineData.activeProspects + ' prospectos';
+
+    var cards = [
+      {
+        title: 'Cold Email Health', icon: HEALTH_ICONS.email,
+        metrics: coldEmailMetrics,
+        badge: 'Warm-up activo', badgeClass: 'health-badge-yellow'
+      },
+      {
+        title: 'LinkedIn Outbound Health', icon: HEALTH_ICONS.linkedin,
+        metrics: linkedInOutMetrics,
+        badge: 'Por activar', badgeClass: 'health-badge-gray'
+      },
+      {
+        title: 'LinkedIn Organico Health', icon: HEALTH_ICONS.megaphone,
+        metrics: linkedInOrgMetrics,
+        badge: '30 posts listos', badgeClass: 'health-badge-blue'
+      },
+      {
+        title: 'Instagram Health', icon: HEALTH_ICONS.instagram,
+        metrics: instagramMetrics,
+        badge: '16 posts listos', badgeClass: 'health-badge-blue'
+      },
+      {
+        title: 'Landing Page Health', icon: HEALTH_ICONS.landing,
+        metrics: landingMetrics,
+        badge: 'Live', badgeClass: 'health-badge-green'
+      },
+      {
+        title: 'Pipeline Health', icon: HEALTH_ICONS.pipeline,
+        metrics: pipelineMetrics,
+        badge: pipelineBadgeText, badgeClass: pipelineBadgeClass
+      }
+    ];
+
+    // Render summary banner
+    var summaryItems = [
+      { label: 'Cold Email', sem: 'yellow', text: 'Warm-up' },
+      { label: 'LinkedIn', sem: 'gray', text: 'Pendiente' },
+      { label: 'Instagram', sem: 'gray', text: 'Pendiente' },
+      { label: 'Landing', sem: 'green', text: 'Live' },
+      { label: 'Pipeline', sem: coverageSem, text: pipelineData.activeProspects + ' prospectos' }
+    ];
+
+    var summaryHtml = '<span class="health-summary-title">Estado del sistema: ' + semCircle('yellow') + ' En construccion</span>' +
+      '<div class="health-summary-items">';
+    summaryItems.forEach(function(item) {
+      summaryHtml += '<span class="health-summary-item">' +
+        '<strong>' + item.label + ':</strong> ' + semCircle(item.sem) + ' ' + item.text +
+      '</span>';
+    });
+    summaryHtml += '</div>';
+    document.getElementById('health-summary').innerHTML = summaryHtml;
+
+    // Render cards
+    var html = '';
+    cards.forEach(function(card) {
+      var cardSem = avgSemaphore(card.metrics);
+      var metricsHtml = '';
+      card.metrics.forEach(function(m) {
+        metricsHtml += renderHealthMetricRow(m);
+      });
+
+      html += '<div class="health-card" data-sem="' + cardSem + '">' +
+        '<div class="health-card-header">' +
+          '<span class="health-card-title">' + card.icon + ' ' + card.title + '</span>' +
+          semCircle(cardSem) +
+        '</div>' +
+        metricsHtml +
+        '<div class="health-badge ' + card.badgeClass + '">' + card.badge + '</div>' +
+      '</div>';
+    });
+    document.getElementById('health-grid').innerHTML = html;
+  }
+
   // ── DATA FETCHING ──
   function fetchAll() {
     var btn = document.getElementById('btn-refresh');
@@ -874,6 +1173,12 @@
 
       // Plan (hardcoded)
       renderPlan();
+
+      // Health Metrics (uses pipeline data from Supabase)
+      renderHealthCards({
+        pipelineValue: pipelineValue,
+        activeProspects: Array.isArray(allProspects) ? allProspects.length : 0
+      });
 
       // Update timestamp
       var now = new Date();
