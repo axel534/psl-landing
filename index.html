@@ -3,8 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Paid Search Lab — Sistema de Generación de Leads B2B: Google Ads + Landing + CRM</title>
-  <meta name="description" content="Genera leads B2B calificados cada semana. Google Ads + Landing Page + CRM automatizado. Equipo senior dedicado. 20 clientes activos.">
+  <title>Paid Search Lab — Tu equipo de ventas necesita leads. No excusas.</title>
+  <meta name="description" content="Construimos tu sistema completo de generacion de leads B2B: Google Ads + Landing + CRM automatizado. Equipo senior dedicado. 20 empresas B2B activas.">
+  <meta property="og:title" content="Paid Search Lab — Sistema de Generacion de Leads B2B">
+  <meta property="og:description" content="Google Ads que atraen compradores reales + Landing que convierte + CRM que califica automaticamente. Equipo senior dedicado.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://paidsearchlab.io">
+  <meta property="og:image" content="https://paidsearchlab.io/og-image.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -22,6 +27,8 @@
       --accent-hover: #0d38d4;
       --red: #ff0310;
       --green: #22c55e;
+      --wa-green: #25D366;
+      --wa-green-hover: #1ebe5d;
       --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       --max-w: 1120px;
       --radius: 12px;
@@ -58,9 +65,13 @@
     .nav-links a:hover { color: var(--text); }
 
     .btn {
-      display: inline-flex; align-items: center; justify-content: center;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       padding: 12px 24px; border-radius: 8px; font-size: 0.9375rem;
-      font-weight: 600; font-family: var(--font); cursor: pointer; border: none; transition: all 0.2s;
+      font-weight: 600; font-family: var(--font); cursor: pointer; border: none;
+      transition: all 0.2s; min-height: 44px;
+    }
+    .btn:focus-visible {
+      outline: 2px solid var(--accent); outline-offset: 2px;
     }
     .btn-primary { background: var(--accent); color: white; }
     .btn-primary:hover {
@@ -69,6 +80,13 @@
     }
     .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
     .btn-outline:hover { border-color: var(--muted); background: var(--surface); }
+    .btn-wa {
+      background: var(--wa-green); color: white;
+    }
+    .btn-wa:hover {
+      background: var(--wa-green-hover); transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(37,211,102,0.3);
+    }
     .btn-sm { padding: 8px 16px; font-size: 0.8125rem; }
     .btn-lg { padding: 16px 32px; font-size: 1rem; }
 
@@ -100,13 +118,9 @@
       letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 24px;
       max-width: 800px; margin-left: auto; margin-right: auto;
     }
-    .hero h1 .highlight {
-      background: linear-gradient(135deg, var(--accent), #6b8cfc);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    }
     .hero-sub {
       font-size: 1.1875rem; color: var(--muted);
-      max-width: 600px; margin: 0 auto 40px; line-height: 1.7;
+      max-width: 640px; margin: 0 auto 40px; line-height: 1.7;
     }
     .hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
@@ -146,7 +160,7 @@
     .problem-icon {
       width: 40px; height: 40px; border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
-      margin-bottom: 16px; font-size: 1.25rem; background: rgba(255,3,16,0.1); color: var(--red);
+      margin-bottom: 16px; background: rgba(255,3,16,0.1); color: var(--red);
     }
     .problem-card h3 { font-size: 1.0625rem; font-weight: 700; margin-bottom: 8px; }
     .problem-card p { font-size: 0.9375rem; color: var(--muted); line-height: 1.6; }
@@ -172,45 +186,30 @@
     .solution-step {
       display: inline-flex; align-items: center; justify-content: center;
       width: 32px; height: 32px; border-radius: 8px;
-      background: rgba(255,3,16,0.1); color: var(--red);
+      background: rgba(15,66,247,0.1); color: var(--accent);
       font-size: 0.875rem; font-weight: 700; margin-bottom: 20px;
     }
     .solution-card h3 { font-size: 1.125rem; font-weight: 700; margin-bottom: 12px; }
     .solution-card p { font-size: 0.9375rem; color: var(--muted); line-height: 1.6; }
 
-    /* COMPARACION */
-    .compare { padding: 100px 0; }
-    .compare-table-full {
-      margin-top: 48px; overflow-x: auto;
+    /* POR QUE PSL */
+    .why-psl { padding: 100px 0; }
+    .why-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px; margin-top: 48px;
     }
-    .compare-table-full table {
-      width: 100%; border-collapse: collapse; min-width: 700px;
+    .why-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px; transition: border-color 0.2s;
     }
-    .compare-table-full th, .compare-table-full td {
-      padding: 16px 20px; text-align: left; border-bottom: 1px solid var(--border);
-      font-size: 0.9375rem;
+    .why-card:hover { border-color: var(--accent); }
+    .why-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px; background: rgba(15,66,247,0.1); color: var(--accent);
     }
-    .compare-table-full th {
-      font-weight: 700; font-size: 0.8125rem; text-transform: uppercase;
-      letter-spacing: 0.05em; color: var(--muted); background: var(--surface);
-    }
-    .compare-table-full th:first-child { border-radius: 8px 0 0 0; }
-    .compare-table-full th:last-child { border-radius: 0 8px 0 0; }
-    .compare-table-full td { color: var(--muted); }
-    .compare-table-full tr td:first-child { color: var(--text); font-weight: 600; }
-    .compare-table-full .col-psl { color: var(--accent) !important; font-weight: 600; }
-    .compare-table-full .col-highlight {
-      background: rgba(15,66,247,0.05); border-left: 2px solid var(--accent); border-right: 2px solid var(--accent);
-    }
-    .compare-table-full thead .col-highlight {
-      border-top: 2px solid var(--accent); color: var(--accent);
-    }
-    .compare-table-full tbody tr:last-child .col-highlight {
-      border-bottom: 2px solid var(--accent);
-    }
-    .compare-table-full .col-bad {
-      background: rgba(255,3,16,0.03);
-    }
+    .why-card h3 { font-size: 1.0625rem; font-weight: 700; margin-bottom: 8px; }
+    .why-card p { font-size: 0.9375rem; color: var(--muted); line-height: 1.6; }
 
     /* NICHOS */
     .niches { padding: 100px 0; }
@@ -278,19 +277,38 @@
       position: relative;
     }
 
-    /* FORM */
+    /* CTA FINAL */
     .contact { padding: 100px 0; }
-    .contact-box {
+    .contact-header {
+      text-align: center; margin-bottom: 48px;
+    }
+    .contact-header h2 {
+      font-size: clamp(1.75rem, 4vw, 2.5rem); font-weight: 800;
+      letter-spacing: -0.02em; margin-bottom: 12px;
+    }
+    .contact-header p {
+      color: var(--muted); font-size: 1.0625rem; line-height: 1.7;
+    }
+    .contact-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+      max-width: 960px; margin: 0 auto;
+    }
+    .contact-wa {
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: 16px; padding: 48px; max-width: 640px; margin: 0 auto;
+      border-radius: 16px; padding: 48px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center; gap: 20px;
     }
-    .contact-box h2 {
-      font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800;
-      letter-spacing: -0.02em; margin-bottom: 12px; text-align: center;
+    .contact-wa-icon {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: rgba(37,211,102,0.12);
+      display: flex; align-items: center; justify-content: center;
     }
-    .contact-box .contact-sub {
-      color: var(--muted); font-size: 1rem; text-align: center;
-      margin-bottom: 32px; line-height: 1.6;
+    .contact-wa h3 { font-size: 1.25rem; font-weight: 700; }
+    .contact-wa .wa-sub { font-size: 0.875rem; color: var(--muted); }
+
+    .contact-form-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 40px;
     }
 
     .form-group { margin-bottom: 20px; }
@@ -302,13 +320,14 @@
       width: 100%; padding: 12px 16px; border-radius: 8px;
       border: 1px solid var(--border); background: var(--bg);
       color: var(--text); font-family: var(--font); font-size: 0.9375rem;
-      transition: border-color 0.2s; outline: none;
+      transition: border-color 0.2s; outline: none; min-height: 44px;
     }
     .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
       border-color: var(--accent);
     }
     .form-group textarea { resize: vertical; min-height: 100px; }
-    .form-group select { cursor: pointer; appearance: none;
+    .form-group select {
+      cursor: pointer; appearance: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a1a1aa' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
       background-repeat: no-repeat; background-position: right 16px center;
     }
@@ -321,7 +340,7 @@
       width: 56px; height: 56px; border-radius: 50%;
       background: rgba(34,197,94,0.1); color: var(--green);
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.5rem; margin: 0 auto 16px;
+      margin: 0 auto 16px;
     }
     .form-success h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; }
     .form-success p { color: var(--muted); font-size: 0.9375rem; }
@@ -336,6 +355,30 @@
     .footer-contact a { color: var(--muted); transition: color 0.2s; }
     .footer-contact a:hover { color: var(--text); }
 
+    /* WHATSAPP FLOTANTE */
+    .wa-float {
+      position: fixed; bottom: 24px; right: 24px; z-index: 999;
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--wa-green); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(37,211,102,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+      animation: wa-bounce 5s infinite;
+    }
+    .wa-float:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 24px rgba(37,211,102,0.5);
+    }
+    .wa-float:focus-visible {
+      outline: 2px solid var(--wa-green); outline-offset: 3px;
+    }
+    @keyframes wa-bounce {
+      0%, 8%, 100% { transform: translateY(0); }
+      2% { transform: translateY(-6px); }
+      4% { transform: translateY(0); }
+      6% { transform: translateY(-3px); }
+    }
+
     /* RESPONSIVE */
     @media (max-width: 768px) {
       .nav-links { display: none; }
@@ -343,7 +386,9 @@
       .hero-proof { gap: 24px; }
       .hero-divider { display: none; }
       .form-row { grid-template-columns: 1fr; }
-      .contact-box { padding: 32px 20px; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .contact-wa { padding: 32px 20px; }
+      .contact-form-box { padding: 32px 20px; }
       .process-step { grid-template-columns: 40px 1fr; gap: 16px; }
       .process-num { width: 40px; height: 40px; font-size: 1rem; }
       .footer-inner { text-align: center; }
@@ -356,20 +401,31 @@
       transition: opacity 0.6s ease, transform 0.6s ease;
     }
     .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .fade-in { opacity: 1; transform: none; transition: none; }
+      .wa-float { animation: none; }
+      .hero-badge .dot { animation: none; }
+    }
   </style>
 </head>
 <body>
 
   <!-- NAV -->
-  <nav>
+  <nav aria-label="Navegacion principal">
     <div class="nav-inner">
-      <a href="#" class="logo">PAID SEARCH <span>LAB</span></a>
+      <a href="#" class="logo" aria-label="Paid Search Lab - Inicio">PAID SEARCH <span>LAB</span></a>
       <ul class="nav-links">
         <li><a href="#problema">Problema</a></li>
         <li><a href="#solucion">Solucion</a></li>
         <li><a href="#proceso">Proceso</a></li>
-        <li><a href="#resultados">Resultados</a></li>
-        <li><a href="#contacto" class="btn btn-primary btn-sm">Diagnostico Gratuito</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+        <li>
+          <a href="https://wa.me/524421150628?text=Hola%2C%20quiero%20mi%20diagn%C3%B3stico%20gratuito" target="_blank" rel="noopener noreferrer" class="btn btn-wa btn-sm" aria-label="Hablar por WhatsApp">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Hablar por WhatsApp
+          </a>
+        </li>
       </ul>
     </div>
   </nav>
@@ -378,33 +434,34 @@
   <section class="hero">
     <div class="container">
       <div class="hero-badge">
-        <span class="dot"></span>
-        20 clientes activos &middot; $2M MXN/mes en ad spend gestionado
+        <span class="dot" aria-hidden="true"></span>
+        Sistema B2B &middot; Google Ads + Landing + CRM
       </div>
-      <h1>
-        Genera <span class="highlight">leads B2B calificados</span> cada semana
-      </h1>
+      <h1>Tu equipo de ventas necesita leads. No excusas.</h1>
       <p class="hero-sub">
-        Google Ads + Landing Page + CRM automatizado. Todo lo que necesitas para generar leads calificados, en un solo equipo.
+        Construimos tu sistema completo de generacion de leads B2B: Google Ads que atraen compradores reales + Landing que convierte + CRM que califica automaticamente.
       </p>
       <div class="hero-ctas">
-        <a href="#contacto" class="btn btn-primary btn-lg">Agendar diagnostico gratuito</a>
+        <a href="https://wa.me/524421150628?text=Hola%2C%20quiero%20mi%20diagn%C3%B3stico%20gratuito" target="_blank" rel="noopener noreferrer" class="btn btn-wa btn-lg" aria-label="Solicitar diagnostico gratuito por WhatsApp">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Solicitar diagnostico gratuito
+        </a>
         <a href="#solucion" class="btn btn-outline">Ver como funciona</a>
       </div>
       <div class="hero-proof">
         <div class="hero-stat">
           <div class="number">$2M MXN/mes</div>
-          <div class="label">Ad spend gestionado</div>
+          <div class="label">gestionados</div>
         </div>
-        <div class="hero-divider"></div>
+        <div class="hero-divider" aria-hidden="true"></div>
         <div class="hero-stat">
           <div class="number">20</div>
-          <div class="label">Clientes activos</div>
+          <div class="label">empresas B2B</div>
         </div>
-        <div class="hero-divider"></div>
+        <div class="hero-divider" aria-hidden="true"></div>
         <div class="hero-stat">
           <div class="number">Semanal</div>
-          <div class="label">Optimizacion de cuentas</div>
+          <div class="label">Optimizacion</div>
         </div>
       </div>
     </div>
@@ -415,32 +472,29 @@
     <div class="container">
       <div class="fade-in">
         <p class="section-label">El problema</p>
-        <h2 class="section-title">Esto es lo que pasa con tu agencia actual</h2>
-        <p class="section-desc">
-          La mayoria de agencias te cobran como premium pero te dan un servicio generico. Tu cuenta es una mas en la fila.
-        </p>
+        <h2 class="section-title">Esto le pasa a tu empresa hoy</h2>
       </div>
       <div class="problem-grid fade-in">
         <div class="problem-card">
-          <div class="problem-icon">
+          <div class="problem-icon" aria-hidden="true">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           </div>
-          <h3>Tu agencia te reporta cada 30 dias</h3>
-          <p>En esos 30 dias ya quemaste 30% del presupuesto en trafico que no convierte. Nadie reviso.</p>
+          <h3>Dependes de referidos para crecer</h3>
+          <p>Tu pipeline depende de que alguien te recomiende. Si nadie te recomienda este mes, no hay ventas nuevas. Tu crecimiento es accidental.</p>
         </div>
         <div class="problem-card">
-          <div class="problem-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <div class="problem-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
           </div>
-          <h3>Un junior rota 30+ cuentas</h3>
-          <p>Tu cuenta la opera alguien con 6 meses de experiencia que aprende con tu dinero. Cada 3 meses cambia.</p>
+          <h3>Tu equipo persigue leads muertos</h3>
+          <p>Gastaste en ads, llegaron 50 formularios, pero solo 3 eran reales. Los otros 47 fueron tiempo perdido de tu equipo comercial.</p>
         </div>
         <div class="problem-card">
-          <div class="problem-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div class="problem-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
           </div>
-          <h3>Sin benchmarks de tu industria</h3>
-          <p>Optimizan a ciegas. No saben cuanto cuesta un lead en tu sector ni que ROAS es realista.</p>
+          <h3>No tienes sistema, tienes esperanza</h3>
+          <p>Sin un sistema predecible de generacion de leads, no puedes planear crecimiento. Cada mes empiezas de cero.</p>
         </div>
       </div>
     </div>
@@ -450,122 +504,75 @@
   <section class="solution" id="solucion">
     <div class="container">
       <div class="fade-in">
-        <p class="section-label">Los 3 pilares de PSL</p>
-        <h2 class="section-title">Seniors que operan, datos reales, optimizacion constante</h2>
-        <p class="section-desc">
-          No somos una agencia de 50 personas donde tu cuenta se pierde. Somos 3 seniors que operan directamente cada cuenta.
-        </p>
+        <p class="section-label">El sistema</p>
+        <h2 class="section-title">Todo lo que necesitas para generar leads B2B. En un solo equipo.</h2>
       </div>
       <div class="solution-grid fade-in">
         <div class="solution-card">
           <div class="solution-step">01</div>
-          <h3>Seniors que operan, no juniors que rotan</h3>
-          <p>Axel (Director, 5 cuentas), Juan (Senior PPC, 10 cuentas), Nery (Senior PPC, 5 cuentas). Tu cuenta la trabaja alguien con 5+ anos.</p>
+          <h3>Campanas que atraen compradores</h3>
+          <p>Estructuramos Google Ads para que aparezcan cuando directores y gerentes buscan activamente lo que vendes. Keywords de intencion comercial, no de curiosidad.</p>
         </div>
         <div class="solution-card">
           <div class="solution-step">02</div>
-          <h3>$2M MXN/mes en ad spend = benchmarks reales</h3>
-          <p>Datos de 20 cuentas en 15 industrias. Sabemos cuanto cuesta un lead en tu sector antes de empezar.</p>
+          <h3>Pagina que califica antes de convertir</h3>
+          <p>Disenamos una pagina de conversion donde solo llenan el formulario los que realmente califican. Menos leads basura, mas oportunidades reales.</p>
         </div>
         <div class="solution-card">
           <div class="solution-step">03</div>
-          <h3>Optimizacion semanal, no mensual</h3>
-          <p>Revisamos cada semana. Ajustamos pujas, keywords, anuncios. Tu presupuesto trabaja todo el tiempo.</p>
+          <h3>Leads que llegan listos para llamar</h3>
+          <p>Cada lead calificado llega a tu equipo con nombre, empresa, cargo y nivel de interes. Tu vendedor solo llama a los que valen la pena.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- COMPARACION -->
-  <section class="compare" id="resultados">
+  <!-- POR QUE PSL -->
+  <section class="why-psl">
     <div class="container">
       <div class="fade-in">
-        <p class="section-label">La diferencia</p>
-        <h2 class="section-title">Compara y decide con datos</h2>
+        <p class="section-label">Por que nosotros</p>
+        <h2 class="section-title">No somos una agencia mas. Somos tu equipo de generacion de leads.</h2>
       </div>
-      <div class="compare-table-full fade-in">
-        <table>
-          <thead>
-            <tr>
-              <th>Criterio</th>
-              <th class="col-bad">Agencia Grande</th>
-              <th class="col-bad">Freelancer</th>
-              <th class="col-bad">In-House</th>
-              <th class="col-highlight">PSL</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Quien opera</td>
-              <td class="col-bad">Junior rotando</td>
-              <td class="col-bad">1 persona</td>
-              <td class="col-bad">1 persona</td>
-              <td class="col-highlight col-psl">Senior dedicado</td>
-            </tr>
-            <tr>
-              <td>Cuentas/persona</td>
-              <td class="col-bad">30+</td>
-              <td class="col-bad">5-8</td>
-              <td class="col-bad">1</td>
-              <td class="col-highlight col-psl">5-10</td>
-            </tr>
-            <tr>
-              <td>Revision</td>
-              <td class="col-bad">Mensual</td>
-              <td class="col-bad">Variable</td>
-              <td class="col-bad">Diaria sin contexto</td>
-              <td class="col-highlight col-psl">Semanal con benchmarks</td>
-            </tr>
-            <tr>
-              <td>Benchmarks</td>
-              <td class="col-bad">Genericos</td>
-              <td class="col-bad">No tiene</td>
-              <td class="col-bad">Solo su cuenta</td>
-              <td class="col-highlight col-psl">20 cuentas, 15 industrias</td>
-            </tr>
-            <tr>
-              <td>Costo</td>
-              <td class="col-bad">$30-80K MXN</td>
-              <td class="col-bad">$5-15K MXN</td>
-              <td class="col-bad">$25-40K MXN salario</td>
-              <td class="col-highlight col-psl">$8-45K MXN fee</td>
-            </tr>
-            <tr>
-              <td>Respaldo</td>
-              <td class="col-bad">Otro junior</td>
-              <td class="col-bad">Nadie</td>
-              <td class="col-bad">Nadie</td>
-              <td class="col-highlight col-psl">Equipo de 3 seniors</td>
-            </tr>
-            <tr>
-              <td>Contrato</td>
-              <td class="col-bad">6-12 meses</td>
-              <td class="col-bad">Variable</td>
-              <td class="col-bad">Indefinido</td>
-              <td class="col-highlight col-psl">3 meses, luego mes a mes</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="why-grid fade-in">
+        <div class="why-card">
+          <div class="why-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <h3>Seniors que operan, no juniors que rotan</h3>
+          <p>Tu cuenta la trabaja alguien con 5+ anos de experiencia. No un becario que aprende con tu dinero.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <h3>$2M MXN/mes en benchmarks reales</h3>
+          <p>Gestionamos $2 millones de pesos al mes en ads. Sabemos cuanto cuesta un lead en tu industria antes de empezar.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <h3>Revisamos cada semana, no cada mes</h3>
+          <p>En 30 dias sin revisar, una campana mal configurada quema 30% del presupuesto. Nosotros revisamos cada 7 dias.</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- NICHOS -->
+  <!-- INDUSTRIAS -->
   <section class="niches">
     <div class="container">
       <div class="fade-in">
-        <p class="section-label">Industrias con resultados probados</p>
-        <h2 class="section-title">Industrias B2B con resultados probados</h2>
-        <p class="section-desc">
-          No experimentamos con tu dinero. Tenemos benchmarks reales de costo por lead, tasa de conversion y ROAS en cada una de estas industrias.
-        </p>
+        <p class="section-label">Industrias B2B</p>
+        <h2 class="section-title">Empresas industriales y de servicios que ya confian en nosotros</h2>
       </div>
       <div class="niche-tags fade-in">
         <span class="niche-tag">Manufactura</span>
         <span class="niche-tag">Servicios Industriales</span>
         <span class="niche-tag">Logistica</span>
         <span class="niche-tag">Salud Privada</span>
-        <span class="niche-tag">Educacion Privada</span>
+        <span class="niche-tag">Educacion</span>
         <span class="niche-tag">Tecnologia</span>
         <span class="niche-tag">Consultoria</span>
         <span class="niche-tag">Telecomunicaciones</span>
@@ -581,36 +588,36 @@
   <section class="process" id="proceso">
     <div class="container">
       <div class="fade-in">
-        <p class="section-label">Como trabajamos</p>
-        <h2 class="section-title">De diagnostico a resultados en 4 pasos</h2>
+        <p class="section-label">Proceso</p>
+        <h2 class="section-title">De la primera llamada a leads calificados en 14 dias</h2>
       </div>
       <div class="process-steps fade-in">
         <div class="process-step">
           <div class="process-num">1</div>
           <div>
             <h3>Diagnostico gratuito (30 min)</h3>
-            <p>Analizamos tu cuenta, tu mercado y tu cliente ideal. Te mostramos donde estas dejando dinero.</p>
+            <p>Revisamos tu situacion actual, tu mercado y tu cliente ideal. Te mostramos exactamente donde estas dejando dinero.</p>
           </div>
         </div>
         <div class="process-step">
           <div class="process-num">2</div>
           <div>
             <h3>Estrategia a medida</h3>
-            <p>Disenamos estructura de campanas para tu nicho con KPIs reales.</p>
+            <p>Disenamos la estructura de campanas, landing y CRM para tu industria especifica.</p>
           </div>
         </div>
         <div class="process-step">
           <div class="process-num">3</div>
           <div>
-            <h3>Implementacion</h3>
-            <p>Configuramos todo: campanas, tracking, CRM, flujos de calificacion.</p>
+            <h3>Implementacion completa</h3>
+            <p>Configuramos todo: campanas, pagina, tracking, CRM y flujos de calificacion.</p>
           </div>
         </div>
         <div class="process-step">
           <div class="process-num">4</div>
           <div>
             <h3>Optimizacion semanal</h3>
-            <p>Cada semana optimizamos con datos reales de tu pipeline.</p>
+            <p>Cada semana optimizamos con datos reales. Tu sistema mejora constantemente.</p>
           </div>
         </div>
       </div>
@@ -624,66 +631,85 @@
         <div class="guarantee-badge">Garantia PSL</div>
         <h2>Garantia de resultados de 60 dias</h2>
         <p class="guarantee-text">
-          Si en los primeros 60 dias no ves una mejora medible en tus metricas clave, trabajamos el mes 3 sin cobrar fee.
+          Si en los primeros 60 dias de gestion no ves una mejora medible en la cantidad y calidad de tus leads, trabajamos el mes 3 sin cobrar fee.
         </p>
         <p class="guarantee-conditions">
-          Condiciones: acceso completo a cuentas publicitarias, landing page funcional y ad spend comprometido durante el periodo.
+          Condiciones: acceso completo a cuentas, ad spend comprometido, aprobacion de materiales en 48h.
         </p>
       </div>
     </div>
   </section>
 
-  <!-- FORMULARIO DE CONTACTO -->
+  <!-- CTA FINAL + FORMULARIO -->
   <section class="contact" id="contacto">
     <div class="container">
       <div class="fade-in">
-        <div class="contact-box">
-          <h2>Agenda tu diagnostico gratuito</h2>
-          <p class="contact-sub">En 30 minutos te mostramos exactamente cuanto estas perdiendo y como solucionarlo.</p>
-          <form id="leadForm">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="nombre">Nombre *</label>
-                <input type="text" id="nombre" name="nombre" required placeholder="Tu nombre completo">
+        <div class="contact-header">
+          <h2>Listo para dejar de depender de referidos?</h2>
+          <p>Agenda tu diagnostico gratuito. 30 minutos. Sin costo. Sin compromiso.</p>
+        </div>
+        <div class="contact-grid">
+          <!-- WhatsApp -->
+          <div class="contact-wa">
+            <div class="contact-wa-icon" aria-hidden="true">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            </div>
+            <h3>Escribir por WhatsApp</h3>
+            <a href="https://wa.me/524421150628?text=Hola%2C%20quiero%20mi%20diagn%C3%B3stico%20gratuito" target="_blank" rel="noopener noreferrer" class="btn btn-wa btn-lg" aria-label="Escribir por WhatsApp para solicitar diagnostico">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              Abrir WhatsApp
+            </a>
+            <p class="wa-sub">Respuesta en menos de 2 horas</p>
+          </div>
+
+          <!-- Formulario -->
+          <div class="contact-form-box">
+            <form id="leadForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="nombre">Nombre *</label>
+                  <input type="text" id="nombre" name="nombre" required placeholder="Tu nombre completo" autocomplete="name">
+                </div>
+                <div class="form-group">
+                  <label for="email">Email *</label>
+                  <input type="email" id="email" name="email" required placeholder="tu@empresa.com" autocomplete="email">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="empresa">Empresa *</label>
+                  <input type="text" id="empresa" name="empresa" required placeholder="Nombre de tu empresa" autocomplete="organization">
+                </div>
+                <div class="form-group">
+                  <label for="sitio_web">Sitio web</label>
+                  <input type="url" id="sitio_web" name="sitio_web" placeholder="https://tuempresa.com" autocomplete="url">
+                </div>
               </div>
               <div class="form-group">
-                <label for="email">Email *</label>
-                <input type="email" id="email" name="email" required placeholder="tu@empresa.com">
+                <label for="ad_spend">Ad spend mensual</label>
+                <select id="ad_spend" name="ad_spend">
+                  <option value="">Selecciona una opcion</option>
+                  <option value="no_invierto">Aun no invierto</option>
+                  <option value="50k_100k">$50K - $100K</option>
+                  <option value="100k_200k">$100K - $200K</option>
+                  <option value="200k_mas">Mas de $200K</option>
+                </select>
               </div>
-            </div>
-            <div class="form-row">
               <div class="form-group">
-                <label for="empresa">Empresa *</label>
-                <input type="text" id="empresa" name="empresa" required placeholder="Nombre de tu empresa">
+                <label for="mensaje">Mensaje (opcional)</label>
+                <textarea id="mensaje" name="mensaje" placeholder="Cuentanos brevemente sobre tu negocio..."></textarea>
               </div>
-              <div class="form-group">
-                <label for="sitio_web">Sitio web</label>
-                <input type="url" id="sitio_web" name="sitio_web" placeholder="https://tuempresa.com">
+              <button type="submit" class="btn btn-primary btn-lg" style="width:100%" id="submitBtn">
+                Solicitar diagnostico
+              </button>
+            </form>
+            <div class="form-success" id="formSuccess">
+              <div class="check-icon" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               </div>
+              <h3>Recibido!</h3>
+              <p>Te contactamos en las proximas 24 horas.</p>
             </div>
-            <div class="form-group">
-              <label for="ad_spend">Ad spend mensual</label>
-              <select id="ad_spend" name="ad_spend">
-                <option value="">Selecciona una opcion</option>
-                <option value="no_tengo">Aun no invierto en Google Ads</option>
-                <option value="menos_50k">Menos de $50K MXN</option>
-                <option value="50k_100k">$50K - $100K MXN</option>
-                <option value="100k_200k">$100K - $200K MXN</option>
-                <option value="200k_mas">Mas de $200K MXN</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="mensaje">Mensaje (opcional)</label>
-              <textarea id="mensaje" name="mensaje" placeholder="Cuentanos brevemente sobre tu negocio y que buscas lograr..."></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary btn-lg" style="width:100%" id="submitBtn">
-              Solicitar diagnostico gratuito
-            </button>
-          </form>
-          <div class="form-success" id="formSuccess">
-            <div class="check-icon">&#x2714;</div>
-            <h3>Recibido</h3>
-            <p>Te contactamos en las proximas 24 horas.</p>
           </div>
         </div>
       </div>
@@ -696,7 +722,7 @@
       <div class="footer-inner">
         <span class="footer-text">Paid Search Lab &copy; 2026</span>
         <span class="footer-contact">
-          <a href="https://paidsearchlab.io" target="_blank">paidsearchlab.io</a> &middot;
+          <a href="https://paidsearchlab.io" target="_blank" rel="noopener noreferrer">paidsearchlab.io</a> &middot;
           <a href="mailto:hola@paidsearchlab.com">hola@paidsearchlab.com</a> &middot;
           <a href="tel:+524421150628">+52 442 115 0628</a>
         </span>
@@ -704,43 +730,48 @@
     </div>
   </footer>
 
+  <!-- WHATSAPP FLOTANTE -->
+  <a href="https://wa.me/524421150628?text=Hola%2C%20quiero%20mi%20diagn%C3%B3stico%20gratuito" target="_blank" rel="noopener noreferrer" class="wa-float" aria-label="Contactar por WhatsApp">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+
   <script>
-    // Fade-in animations
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) entry.target.classList.add('visible');
+    // Fade-in on scroll
+    const observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) { entry.target.classList.add('visible'); }
       });
     }, { threshold: 0.1 });
-    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    document.querySelectorAll('.fade-in').forEach(function(el) { observer.observe(el); });
 
     // Form submission
     document.getElementById('leadForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
-      const submitBtn = document.getElementById('submitBtn');
+      var submitBtn = document.getElementById('submitBtn');
       submitBtn.disabled = true;
       submitBtn.textContent = 'Enviando...';
 
-      const formData = new FormData(this);
-      const data = Object.fromEntries(formData);
+      var formData = new FormData(this);
+      var data = Object.fromEntries(formData);
       data.fuente = 'landing_page';
       data.fecha = new Date().toISOString();
 
       try {
-        const res = await fetch('https://jeohuwkpermcmzltjmna.supabase.co/functions/v1/lead-capture', {
+        var res = await fetch('https://jeohuwkpermcmzltjmna.supabase.co/functions/v1/lead-capture', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
 
-        if (!res.ok) throw new Error('Error al enviar');
+        if (!res.ok) { throw new Error('Error al enviar'); }
 
         document.getElementById('leadForm').style.display = 'none';
         document.getElementById('formSuccess').style.display = 'block';
       } catch (err) {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Solicitar diagnostico gratuito';
-        alert('Error al enviar. Intenta de nuevo.');
+        submitBtn.textContent = 'Solicitar diagnostico';
+        alert('Error al enviar. Intenta de nuevo o escribenos por WhatsApp.');
       }
     });
   </script>
