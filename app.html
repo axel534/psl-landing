@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PSL OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --black: #000000;
+      --dark-bg: #0a0a0a;
+      --border: #1a1a1a;
+      --blue: #0f42f7;
+      --red: #ff0310;
+      --text-primary: #e0e0e0;
+      --text-secondary: #888888;
+      --text-muted: #555555;
+      --sidebar-width: 240px;
+      --header-height: 48px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--black);
+      color: var(--text-primary);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* ── AUTH OVERLAY ─────────────────────────── */
+    #auth-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--black);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    #auth-overlay.hidden {
+      display: none;
+    }
+
+    .auth-logo {
+      font-size: 42px;
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+
+    .auth-logo span {
+      color: var(--red);
+    }
+
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .auth-input {
+      background: #111;
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      padding: 10px 16px;
+      border-radius: 6px;
+      width: 260px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .auth-input:focus {
+      border-color: var(--blue);
+    }
+
+    .auth-input.error {
+      border-color: var(--red);
+      animation: shake 0.4s ease;
+    }
+
+    .auth-btn {
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 32px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      width: 260px;
+    }
+
+    .auth-btn:hover {
+      opacity: 0.85;
+    }
+
+    .auth-error {
+      color: var(--red);
+      font-size: 13px;
+      height: 18px;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      50% { transform: translateX(6px); }
+      75% { transform: translateX(-4px); }
+    }
+
+    /* ── HEADER ───────────────────────────────── */
+    #header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-height);
+      background: var(--black);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px 0 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 100%;
+      padding-left: 20px;
+    }
+
+    .header-brand {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      white-space: nowrap;
+    }
+
+    .header-brand span {
+      color: var(--red);
+    }
+
+    .header-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+    }
+
+    .header-section-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .header-clock {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+    }
+
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .hamburger svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    /* ── SIDEBAR ──────────────────────────────── */
+    #sidebar {
+      position: fixed;
+      top: var(--header-height);
+      left: 0;
+      bottom: 0;
+      width: var(--sidebar-width);
+      background: var(--dark-bg);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      z-index: 90;
+      overflow-y: auto;
+      overflow-x: hidden;
+      transition: transform 0.25s ease;
+    }
+
+    #sidebar::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    #sidebar::-webkit-scrollbar-thumb {
+      background: #222;
+      border-radius: 2px;
+    }
+
+    .sidebar-logo {
+      padding: 20px 20px 16px;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+
+    .sidebar-logo span {
+      color: var(--red);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 16px;
+    }
+
+    .sidebar-section-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text-muted);
+      padding: 16px 20px 6px;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 20px;
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-left-color 0.2s;
+      border-left: 3px solid transparent;
+      text-decoration: none;
+      user-select: none;
+    }
+
+    .sidebar-item:hover {
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-primary);
+    }
+
+    .sidebar-item.active {
+      background: rgba(15, 66, 247, 0.1);
+      border-left-color: var(--blue);
+      color: #fff;
+      font-weight: 500;
+    }
+
+    .sidebar-item svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      opacity: 0.6;
+    }
+
+    .sidebar-item.active svg {
+      opacity: 1;
+    }
+
+    .sidebar-item:hover svg {
+      opacity: 0.85;
+    }
+
+    .sidebar-item-label {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .external-icon {
+      width: 12px !important;
+      height: 12px !important;
+      opacity: 0.35 !important;
+      flex-shrink: 0;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px 20px 20px;
+    }
+
+    .sidebar-footer-version {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .sidebar-footer-mrr {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      margin-top: 4px;
+      letter-spacing: -0.5px;
+    }
+
+    .sidebar-footer-mrr-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 500;
+    }
+
+    /* ── MAIN CONTENT ─────────────────────────── */
+    #main {
+      position: fixed;
+      top: var(--header-height);
+      left: var(--sidebar-width);
+      right: 0;
+      bottom: 0;
+    }
+
+    #main-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: var(--black);
+    }
+
+    /* ── SIDEBAR OVERLAY (MOBILE) ─────────────── */
+    #sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      top: var(--header-height);
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 80;
+    }
+
+    /* ── RESPONSIVE ───────────────────────────── */
+    @media (max-width: 768px) {
+      .hamburger {
+        display: block;
+      }
+
+      #sidebar {
+        transform: translateX(-100%);
+      }
+
+      #sidebar.open {
+        transform: translateX(0);
+      }
+
+      #sidebar.open ~ #sidebar-overlay {
+        display: block;
+      }
+
+      #main {
+        left: 0;
+      }
+
+      .header-left {
+        padding-left: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- AUTH OVERLAY -->
+  <div id="auth-overlay">
+    <div class="auth-logo">PSL <span>OS</span></div>
+    <div class="auth-form">
+      <input type="password" id="auth-token" class="auth-input" placeholder="Token de acceso" autofocus>
+      <button id="auth-submit" class="auth-btn">Entrar</button>
+      <div id="auth-error" class="auth-error"></div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div id="header">
+    <div class="header-left">
+      <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <div class="header-brand">PSL <span>OS</span></div>
+      <div class="header-sep"></div>
+      <div class="header-section-name" id="header-section">Dashboard</div>
+    </div>
+    <div class="header-right">
+      <div class="header-clock" id="header-clock">--:--:--</div>
+      <div class="status-dot" id="status-dot" title="System healthy"></div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div class="sidebar-logo">PSL <span>OS</span></div>
+    <div class="sidebar-divider"></div>
+
+    <!-- OPERACIONES -->
+    <div class="sidebar-section-label">Operaciones</div>
+
+    <div class="sidebar-item active" data-src="dashboard.html" data-label="Dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      <span class="sidebar-item-label">Dashboard</span>
+    </div>
+
+    <div class="sidebar-item" data-src="scores.html" data-label="Sales Scores">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="12" width="4" height="9" rx="0.5"/>
+        <rect x="10" y="7" width="4" height="14" rx="0.5"/>
+        <rect x="17" y="3" width="4" height="18" rx="0.5"/>
+      </svg>
+      <span class="sidebar-item-label">Sales Scores</span>
+    </div>
+
+    <div class="sidebar-item" data-src="system-health.html" data-label="System Health">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      </svg>
+      <span class="sidebar-item-label">System Health</span>
+    </div>
+
+    <div class="sidebar-item" data-src="panel-stitch.html" data-label="Panel Stitch">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="7" rx="1"/>
+        <rect x="3" y="14" width="8" height="7" rx="1"/>
+        <rect x="15" y="14" width="6" height="7" rx="1"/>
+      </svg>
+      <span class="sidebar-item-label">Panel Stitch</span>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <!-- PUBLICO -->
+    <div class="sidebar-section-label">P&uacute;blico</div>
+
+    <div class="sidebar-item" data-src="index.html" data-label="Landing Page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="2" y1="12" x2="22" y2="12"/>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+      </svg>
+      <span class="sidebar-item-label">Landing Page</span>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <!-- HERRAMIENTAS -->
+    <div class="sidebar-section-label">Herramientas</div>
+
+    <a class="sidebar-item" href="https://app.instantly.ai" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="4" width="20" height="16" rx="2"/>
+        <polyline points="22,7 12,13 2,7"/>
+      </svg>
+      <span class="sidebar-item-label">Instantly</span>
+      <svg class="external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+        <polyline points="15,3 21,3 21,9"/>
+        <line x1="10" y1="14" x2="21" y2="3"/>
+      </svg>
+    </a>
+
+    <a class="sidebar-item" href="https://app.apollo.io" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <span class="sidebar-item-label">Apollo</span>
+      <svg class="external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+        <polyline points="15,3 21,3 21,9"/>
+        <line x1="10" y1="14" x2="21" y2="3"/>
+      </svg>
+    </a>
+
+    <a class="sidebar-item" href="https://supabase.com/dashboard/project/jeohuwkpermcmzltjmna" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <ellipse cx="12" cy="5" rx="9" ry="3"/>
+        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+      </svg>
+      <span class="sidebar-item-label">Supabase</span>
+      <svg class="external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+        <polyline points="15,3 21,3 21,9"/>
+        <line x1="10" y1="14" x2="21" y2="3"/>
+      </svg>
+    </a>
+
+    <a class="sidebar-item" href="https://cal.com" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <span class="sidebar-item-label">Cal.com</span>
+      <svg class="external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+        <polyline points="15,3 21,3 21,9"/>
+        <line x1="10" y1="14" x2="21" y2="3"/>
+      </svg>
+    </a>
+
+    <div class="sidebar-divider"></div>
+
+    <!-- FOOTER -->
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-version">v1.0</div>
+      <div class="sidebar-footer-mrr">$161,500</div>
+      <div class="sidebar-footer-mrr-label">MRR Actual</div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR OVERLAY (MOBILE) -->
+  <div id="sidebar-overlay"></div>
+
+  <!-- MAIN CONTENT -->
+  <div id="main">
+    <iframe id="main-iframe" title="PSL OS Panel"></iframe>
+  </div>
+
+  <script>
+    (function () {
+      const VALID_TOKEN = 'psl2026';
+      const overlay = document.getElementById('auth-overlay');
+      const tokenInput = document.getElementById('auth-token');
+      const submitBtn = document.getElementById('auth-submit');
+      const errorMsg = document.getElementById('auth-error');
+      const iframe = document.getElementById('main-iframe');
+      const headerSection = document.getElementById('header-section');
+      const clockEl = document.getElementById('header-clock');
+      const sidebar = document.getElementById('sidebar');
+      const hamburgerBtn = document.getElementById('hamburger-btn');
+      const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+      let authenticatedToken = null;
+
+      // ── AUTH ──────────────────────────────────
+      function authenticate() {
+        const val = tokenInput.value.trim();
+        if (val === VALID_TOKEN) {
+          authenticatedToken = val;
+          overlay.classList.add('hidden');
+          loadPanel('dashboard.html', 'Dashboard');
+        } else {
+          errorMsg.textContent = 'Acceso denegado';
+          tokenInput.classList.add('error');
+          tokenInput.value = '';
+          tokenInput.focus();
+          setTimeout(function () {
+            tokenInput.classList.remove('error');
+          }, 600);
+        }
+      }
+
+      submitBtn.addEventListener('click', authenticate);
+      tokenInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') authenticate();
+      });
+
+      // ── PANEL LOADING ─────────────────────────
+      function loadPanel(src, label) {
+        var separator = src.indexOf('?') === -1 ? '?' : '&';
+        iframe.src = src + separator + 'token=' + encodeURIComponent(authenticatedToken);
+        headerSection.textContent = label;
+
+        var items = document.querySelectorAll('.sidebar-item[data-src]');
+        items.forEach(function (item) {
+          item.classList.toggle('active', item.getAttribute('data-src') === src);
+        });
+
+        // Close mobile sidebar
+        sidebar.classList.remove('open');
+      }
+
+      // ── SIDEBAR CLICKS ────────────────────────
+      document.querySelectorAll('.sidebar-item[data-src]').forEach(function (item) {
+        item.addEventListener('click', function () {
+          loadPanel(item.getAttribute('data-src'), item.getAttribute('data-label'));
+        });
+      });
+
+      // ── HAMBURGER (MOBILE) ─────────────────────
+      hamburgerBtn.addEventListener('click', function () {
+        sidebar.classList.toggle('open');
+      });
+
+      sidebarOverlay.addEventListener('click', function () {
+        sidebar.classList.remove('open');
+      });
+
+      // ── CLOCK ─────────────────────────────────
+      function updateClock() {
+        var now = new Date();
+        var h = String(now.getHours()).padStart(2, '0');
+        var m = String(now.getMinutes()).padStart(2, '0');
+        var s = String(now.getSeconds()).padStart(2, '0');
+        clockEl.textContent = h + ':' + m + ':' + s;
+      }
+
+      updateClock();
+      setInterval(updateClock, 1000);
+
+      // Focus token input on load
+      tokenInput.focus();
+    })();
+  </script>
+</body>
+</html>
