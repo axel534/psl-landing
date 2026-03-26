@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Health — PSL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #000000;
+      --surface: #0a0a0a;
+      --surface-2: #141414;
+      --border: #1a1a1a;
+      --text: #ffffff;
+      --muted: #a1a1aa;
+      --accent: #0f42f7;
+      --accent-hover: #0d38d4;
+      --red: #ff0310;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --danger: #ef4444;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --max-w: 1200px;
+      --radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+
+    /* AUTH GATE */
+    #auth-gate {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 16px;
+    }
+    #auth-gate.hidden { display: none; }
+    #auth-gate p { font-size: 1.25rem; font-weight: 700; }
+    #auth-denied { color: var(--red); font-size: 0.875rem; font-weight: 600; display: none; }
+
+    /* HEADER */
+    .panel-header {
+      padding: 32px 0 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .panel-title-row {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap;
+    }
+    .panel-title {
+      font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+    .panel-title span { color: var(--accent); }
+    .badge-live {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 100px;
+      background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2);
+      font-size: 0.75rem; font-weight: 600; color: var(--green);
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .badge-live .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green); animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+    .panel-meta {
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    }
+    .panel-meta span {
+      font-size: 0.8125rem; color: var(--muted);
+    }
+    .btn-refresh {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 8px; font-size: 0.8125rem;
+      font-weight: 600; font-family: var(--font); cursor: pointer;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--muted); transition: all 0.2s; min-height: 36px;
+    }
+    .btn-refresh:hover { border-color: var(--accent); color: var(--text); }
+    .btn-refresh:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .btn-refresh svg { width: 14px; height: 14px; }
+    .btn-refresh.loading svg { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* SECTION LABEL */
+    .section-label {
+      font-size: 0.8125rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--accent); margin-bottom: 16px;
+      padding-top: 40px;
+    }
+
+    /* ALERT BANNER */
+    .alert-banner {
+      margin-top: 24px; padding: 14px 20px; border-radius: var(--radius);
+      font-size: 0.875rem; font-weight: 600;
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .alert-banner.ok {
+      background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25);
+      color: var(--green);
+    }
+    .alert-banner.warning {
+      background: rgba(234,179,8,0.08); border: 1px solid rgba(234,179,8,0.25);
+      color: var(--yellow);
+    }
+    .alert-banner.critical {
+      background: rgba(255,3,16,0.08); border: 1px solid rgba(255,3,16,0.25);
+      color: var(--red);
+    }
+    .alert-banner svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+    .alert-banner-content { display: flex; flex-direction: column; gap: 4px; }
+    .alert-banner-item { font-size: 0.8125rem; font-weight: 500; }
+
+    /* MODULE CARDS GRID */
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .module-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+      transition: border-color 0.2s;
+    }
+    .module-card:hover { border-color: #2a2a2a; }
+    .module-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .module-card-title {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 1rem; font-weight: 700;
+    }
+    .status-dot {
+      width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+    }
+    .dot-green { background: var(--green); box-shadow: 0 0 8px rgba(34,197,94,0.4); }
+    .dot-yellow { background: var(--yellow); box-shadow: 0 0 8px rgba(234,179,8,0.4); }
+    .dot-red { background: var(--red); box-shadow: 0 0 8px rgba(255,3,16,0.4); }
+    .dot-gray { background: var(--muted); }
+
+    .module-detail {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .module-detail-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.8125rem;
+    }
+    .module-detail-label { color: var(--muted); }
+    .module-detail-value { font-weight: 600; }
+    .module-error {
+      margin-top: 10px; padding: 8px 12px;
+      background: rgba(255,3,16,0.06); border: 1px solid rgba(255,3,16,0.15);
+      border-radius: 8px; font-size: 0.75rem; color: var(--red);
+      word-break: break-word;
+    }
+
+    /* TABLES */
+    .table-wrapper {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow-x: auto;
+    }
+    .data-table {
+      width: 100%; border-collapse: collapse; min-width: 700px;
+    }
+    .data-table th {
+      text-align: left; padding: 14px 16px;
+      font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,10,0.5);
+    }
+    .data-table td {
+      padding: 12px 16px; font-size: 0.875rem;
+      border-bottom: 1px solid var(--border); color: var(--muted);
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: rgba(15,66,247,0.03); }
+    .data-table td:first-child { color: var(--text); font-weight: 600; }
+
+    /* BADGES */
+    .badge {
+      display: inline-flex; padding: 3px 10px; border-radius: 100px;
+      font-size: 0.6875rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .badge-green { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); color: var(--green); }
+    .badge-yellow { background: rgba(234,179,8,0.1); border: 1px solid rgba(234,179,8,0.2); color: var(--yellow); }
+    .badge-red { background: rgba(255,3,16,0.1); border: 1px solid rgba(255,3,16,0.2); color: var(--red); }
+    .badge-gray { background: rgba(161,161,170,0.1); border: 1px solid rgba(161,161,170,0.2); color: var(--muted); }
+
+    /* PROGRESS BAR for rate limits */
+    .rate-bar {
+      width: 80px; height: 6px; border-radius: 3px;
+      background: var(--surface-2); overflow: hidden; flex-shrink: 0;
+    }
+    .rate-bar-fill {
+      height: 100%; border-radius: 3px;
+      transition: width 0.8s ease;
+    }
+    .rate-cell {
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center; padding: 40px 20px;
+      color: var(--muted); font-size: 0.875rem;
+    }
+
+    /* LOADING */
+    .loading-row {
+      display: flex; align-items: center; justify-content: center;
+      padding: 40px; color: var(--muted); font-size: 0.875rem; gap: 12px;
+    }
+    .spinner {
+      width: 18px; height: 18px; border: 2px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    /* FOOTER SPACER */
+    .footer-spacer { height: 60px; }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .modules-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .modules-grid { grid-template-columns: 1fr; }
+      .data-table { min-width: 560px; }
+      .panel-title { font-size: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- AUTH GATE -->
+<div id="auth-gate">
+  <p>System Health -- PSL</p>
+  <p id="auth-denied">Acceso denegado</p>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main-content" style="display:none;">
+  <div class="container">
+
+    <!-- HEADER -->
+    <header class="panel-header">
+      <div class="panel-title-row">
+        <h1 class="panel-title">System Health <span>-- PSL</span></h1>
+        <span class="badge-live"><span class="dot"></span> Live</span>
+      </div>
+      <div class="panel-meta">
+        <span id="last-updated">Cargando...</span>
+        <button class="btn-refresh" id="btn-refresh" aria-label="Recargar datos">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+          Refresh
+        </button>
+      </div>
+    </header>
+
+    <!-- 7. ALERTAS ACTIVAS -->
+    <div id="alerts-container"></div>
+
+    <!-- 2. MODULOS -->
+    <section>
+      <div class="section-label">Modulos del Sistema</div>
+      <div class="modules-grid" id="modules-grid">
+        <div class="loading-row"><div class="spinner"></div> Cargando modulos...</div>
+      </div>
+    </section>
+
+    <!-- 3. API RATE LIMITS -->
+    <section>
+      <div class="section-label">API Rate Limits</div>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Servicio</th>
+              <th>Creditos restantes</th>
+              <th>% Restante</th>
+              <th>Alerta</th>
+              <th>Reset Date</th>
+            </tr>
+          </thead>
+          <tbody id="api-health-body">
+            <tr><td colspan="5" class="empty-state">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 4. EMAIL HEALTH -->
+    <section>
+      <div class="section-label">Email Health</div>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Campana</th>
+              <th>Fecha</th>
+              <th>Enviados</th>
+              <th>Open Rate</th>
+              <th>Reply Rate</th>
+              <th>Bounce Rate</th>
+              <th>Spam</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="email-health-body">
+            <tr><td colspan="8" class="empty-state">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 5. CHANNEL TRENDS -->
+    <section>
+      <div class="section-label">Channel Trends</div>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Canal</th>
+              <th>Semana</th>
+              <th>Contactos</th>
+              <th>Leads</th>
+              <th>Meetings</th>
+              <th>Cierres</th>
+              <th>Revenue</th>
+              <th>ROI</th>
+            </tr>
+          </thead>
+          <tbody id="channel-trends-body">
+            <tr><td colspan="8" class="empty-state">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 6. EXECUTION LOG -->
+    <section>
+      <div class="section-label">Execution Log</div>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Accion</th>
+              <th>Modulo</th>
+              <th>Resultado</th>
+              <th>Duracion</th>
+            </tr>
+          </thead>
+          <tbody id="exec-log-body">
+            <tr><td colspan="5" class="empty-state">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="footer-spacer"></div>
+  </div>
+</div>
+
+<script>
+  // ── AUTH ──
+  (function authGate() {
+    var token = prompt('Token de acceso:');
+    if (token !== 'psl2026') {
+      document.getElementById('auth-denied').style.display = 'block';
+      return;
+    }
+    document.getElementById('auth-gate').classList.add('hidden');
+    document.getElementById('main-content').style.display = 'block';
+    initDashboard();
+  })();
+
+  // ── CONFIG ──
+  var SUPABASE_URL = 'https://jeohuwkpermcmzltjmna.supabase.co';
+  var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Implb2h1d2twZXJtY216bHRqbW5hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzMzA0NjQsImV4cCI6MjA1NzkwNjQ2NH0.2tmOsey4sSwKRiHv1xjkDhio6RZ8MYn9U5A0GIWJjM0';
+
+  function supaFetch(path) {
+    return fetch(SUPABASE_URL + '/rest/v1/' + path, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Accept': 'application/json'
+      }
+    }).then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).catch(function(err) {
+      console.error('supaFetch error:', path, err);
+      return [];
+    });
+  }
+
+  // ── HELPERS ──
+  function esc(s) {
+    if (s == null) return '';
+    var d = document.createElement('div');
+    d.textContent = String(s);
+    return d.innerHTML;
+  }
+
+  function fmt(n) {
+    if (n == null || isNaN(n)) return '--';
+    return '$' + Number(n).toLocaleString('es-MX', { maximumFractionDigits: 0 });
+  }
+
+  function fmtPct(n) {
+    if (n == null || isNaN(n)) return '--';
+    return Number(n).toFixed(1) + '%';
+  }
+
+  function fmtDate(d) {
+    if (!d) return '--';
+    var dt = new Date(d);
+    return dt.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  function fmtTimestamp(d) {
+    if (!d) return '--';
+    var dt = new Date(d);
+    return dt.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit' }) + ' ' +
+           dt.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+
+  function fmtDuration(ms) {
+    if (ms == null || isNaN(ms)) return '--';
+    if (ms < 1000) return ms + 'ms';
+    return (ms / 1000).toFixed(2) + 's';
+  }
+
+  function statusDotClass(status) {
+    if (!status) return 'dot-gray';
+    var s = String(status).toLowerCase();
+    if (s === 'operational' || s === 'healthy' || s === 'ok' || s === 'green') return 'dot-green';
+    if (s === 'degraded' || s === 'warning' || s === 'yellow' || s === 'slow') return 'dot-yellow';
+    if (s === 'down' || s === 'critical' || s === 'error' || s === 'red') return 'dot-red';
+    return 'dot-gray';
+  }
+
+  function badgeForStatus(status) {
+    if (!status) return '<span class="badge badge-gray">N/A</span>';
+    var s = String(status).toLowerCase();
+    if (s === 'healthy' || s === 'operational' || s === 'ok' || s === 'green') return '<span class="badge badge-green">' + esc(status) + '</span>';
+    if (s === 'warning' || s === 'degraded' || s === 'yellow' || s === 'slow') return '<span class="badge badge-yellow">' + esc(status) + '</span>';
+    if (s === 'critical' || s === 'down' || s === 'error' || s === 'red') return '<span class="badge badge-red">' + esc(status) + '</span>';
+    return '<span class="badge badge-gray">' + esc(status) + '</span>';
+  }
+
+  function resultBadge(result) {
+    if (!result) return '<span class="badge badge-gray">--</span>';
+    var r = String(result).toLowerCase();
+    if (r === 'success') return '<span class="badge badge-green">success</span>';
+    if (r === 'failure' || r === 'error' || r === 'fail') return '<span class="badge badge-red">failure</span>';
+    if (r === 'partial') return '<span class="badge badge-yellow">partial</span>';
+    return '<span class="badge badge-gray">' + esc(result) + '</span>';
+  }
+
+  function rateBarColor(pct) {
+    if (pct > 50) return 'var(--green)';
+    if (pct > 20) return 'var(--yellow)';
+    return 'var(--red)';
+  }
+
+  function emailStatusBadge(status) {
+    if (!status) return '<span class="badge badge-gray">--</span>';
+    var s = String(status).toLowerCase();
+    if (s === 'healthy') return '<span class="badge badge-green">healthy</span>';
+    if (s === 'warning') return '<span class="badge badge-yellow">warning</span>';
+    if (s === 'critical') return '<span class="badge badge-red">critical</span>';
+    return '<span class="badge badge-gray">' + esc(status) + '</span>';
+  }
+
+  // ── SVG ICONS ──
+  var ICON_CHECK = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;color:var(--green);"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+  var ICON_WARN = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;color:var(--yellow);"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+  var ICON_ALERT = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;color:var(--red);"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+
+  // ── MODULE DEFINITIONS ──
+  var MODULE_NAMES = ['Supabase', 'Instantly', 'Apollo', 'Vercel/Landing', 'Cal.com', 'Make.com'];
+
+  // ── RENDER FUNCTIONS ──
+
+  function renderAlerts(healthData) {
+    var container = document.getElementById('alerts-container');
+    if (!healthData || !Array.isArray(healthData) || healthData.length === 0) {
+      container.innerHTML = '<div class="alert-banner ok">' + ICON_CHECK + ' Todos los sistemas operando normalmente</div>';
+      return;
+    }
+
+    var alerts = healthData.filter(function(h) {
+      var lvl = String(h.alert_level || '').toLowerCase();
+      return lvl === 'critical' || lvl === 'warning' || lvl === 'stale';
+    });
+
+    if (alerts.length === 0) {
+      container.innerHTML = '<div class="alert-banner ok">' + ICON_CHECK + ' Todos los sistemas operando normalmente</div>';
+      return;
+    }
+
+    var hasCritical = alerts.some(function(a) { return String(a.alert_level || '').toLowerCase() === 'critical'; });
+    var bannerClass = hasCritical ? 'critical' : 'warning';
+    var bannerIcon = hasCritical ? ICON_ALERT : ICON_WARN;
+
+    var html = '<div class="alert-banner ' + bannerClass + '">' + bannerIcon + '<div class="alert-banner-content">';
+    alerts.forEach(function(a) {
+      var level = String(a.alert_level || '').toUpperCase();
+      var module = esc(a.module_name || a.service_name || '--');
+      var msg = esc(a.error_message || a.status || 'Alerta activa');
+      html += '<div class="alert-banner-item">[' + level + '] ' + module + ' -- ' + msg + '</div>';
+    });
+    html += '</div></div>';
+    container.innerHTML = html;
+  }
+
+  function renderModules(healthData) {
+    var grid = document.getElementById('modules-grid');
+
+    if (!healthData || !Array.isArray(healthData) || healthData.length === 0) {
+      // Show all modules with "Sin datos" state
+      var html = '';
+      MODULE_NAMES.forEach(function(name) {
+        html += '<div class="module-card">' +
+          '<div class="module-card-header">' +
+            '<div class="module-card-title"><span class="status-dot dot-gray"></span>' + esc(name) + '</div>' +
+          '</div>' +
+          '<div class="module-detail">' +
+            '<div class="module-detail-row"><span class="module-detail-label">Estado</span><span class="module-detail-value" style="color:var(--muted);">Sin datos</span></div>' +
+            '<div class="module-detail-row"><span class="module-detail-label">Ultimo check</span><span class="module-detail-value" style="color:var(--muted);">--</span></div>' +
+            '<div class="module-detail-row"><span class="module-detail-label">Response time</span><span class="module-detail-value" style="color:var(--muted);">--</span></div>' +
+          '</div>' +
+        '</div>';
+      });
+      grid.innerHTML = html;
+      return;
+    }
+
+    // Map health data by module name (case-insensitive)
+    var healthMap = {};
+    healthData.forEach(function(h) {
+      var key = String(h.module_name || h.service_name || '').toLowerCase();
+      healthMap[key] = h;
+    });
+
+    var html = '';
+    MODULE_NAMES.forEach(function(name) {
+      var key = name.toLowerCase();
+      var h = healthMap[key] || null;
+
+      var dotClass = h ? statusDotClass(h.status) : 'dot-gray';
+      var statusText = h ? esc(h.status || 'N/A') : 'Sin datos';
+      var lastCheck = h ? fmtTimestamp(h.last_check || h.checked_at || h.updated_at) : '--';
+      var responseTime = h ? fmtDuration(h.response_time_ms || h.response_time) : '--';
+      var error = h ? (h.error_message || h.error || '') : '';
+
+      html += '<div class="module-card">' +
+        '<div class="module-card-header">' +
+          '<div class="module-card-title"><span class="status-dot ' + dotClass + '"></span>' + esc(name) + '</div>' +
+        '</div>' +
+        '<div class="module-detail">' +
+          '<div class="module-detail-row"><span class="module-detail-label">Estado</span><span class="module-detail-value">' + statusText + '</span></div>' +
+          '<div class="module-detail-row"><span class="module-detail-label">Ultimo check</span><span class="module-detail-value">' + lastCheck + '</span></div>' +
+          '<div class="module-detail-row"><span class="module-detail-label">Response time</span><span class="module-detail-value">' + responseTime + '</span></div>' +
+        '</div>' +
+        (error ? '<div class="module-error">' + esc(error) + '</div>' : '') +
+      '</div>';
+    });
+    grid.innerHTML = html;
+  }
+
+  function renderApiHealth(data) {
+    var tbody = document.getElementById('api-health-body');
+
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Sin datos</td></tr>';
+      return;
+    }
+
+    var html = '';
+    data.forEach(function(row) {
+      var pct = row.pct_remaining != null ? Number(row.pct_remaining) : null;
+      var pctDisplay = pct != null ? fmtPct(pct) : '--';
+      var alertBadge = row.alert ? badgeForStatus(row.alert) : '<span class="badge badge-green">OK</span>';
+      var barHtml = '';
+      if (pct != null) {
+        barHtml = '<div class="rate-cell">' +
+          '<div class="rate-bar"><div class="rate-bar-fill" style="width:' + Math.min(pct, 100) + '%;background:' + rateBarColor(pct) + ';"></div></div>' +
+          '<span>' + pctDisplay + '</span>' +
+        '</div>';
+      } else {
+        barHtml = '--';
+      }
+
+      html += '<tr>' +
+        '<td>' + esc(row.service_name || row.service || '--') + '</td>' +
+        '<td>' + esc(row.credits_remaining != null ? Number(row.credits_remaining).toLocaleString('es-MX') : '--') + '</td>' +
+        '<td>' + barHtml + '</td>' +
+        '<td>' + alertBadge + '</td>' +
+        '<td>' + fmtDate(row.reset_date || row.resets_at) + '</td>' +
+      '</tr>';
+    });
+    tbody.innerHTML = html;
+  }
+
+  function renderEmailHealth(data) {
+    var tbody = document.getElementById('email-health-body');
+
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" class="empty-state">Sin datos</td></tr>';
+      return;
+    }
+
+    var html = '';
+    data.forEach(function(row) {
+      html += '<tr>' +
+        '<td>' + esc(row.campaign_name || row.campaign || '--') + '</td>' +
+        '<td>' + fmtDate(row.fecha || row.date || row.sent_date) + '</td>' +
+        '<td>' + esc(row.sent_count != null ? Number(row.sent_count).toLocaleString('es-MX') : (row.enviados != null ? Number(row.enviados).toLocaleString('es-MX') : '--')) + '</td>' +
+        '<td>' + fmtPct(row.open_rate) + '</td>' +
+        '<td>' + fmtPct(row.reply_rate) + '</td>' +
+        '<td>' + fmtPct(row.bounce_rate) + '</td>' +
+        '<td>' + fmtPct(row.spam_rate != null ? row.spam_rate : row.spam) + '</td>' +
+        '<td>' + emailStatusBadge(row.status || row.estado) + '</td>' +
+      '</tr>';
+    });
+    tbody.innerHTML = html;
+  }
+
+  function renderChannelTrends(data) {
+    var tbody = document.getElementById('channel-trends-body');
+
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" class="empty-state">Sin datos</td></tr>';
+      return;
+    }
+
+    var html = '';
+    data.forEach(function(row) {
+      html += '<tr>' +
+        '<td>' + esc(row.channel || row.canal || '--') + '</td>' +
+        '<td>' + esc(row.week || row.semana || '--') + '</td>' +
+        '<td>' + esc(row.contacts != null ? Number(row.contacts).toLocaleString('es-MX') : (row.contactos != null ? Number(row.contactos).toLocaleString('es-MX') : '--')) + '</td>' +
+        '<td>' + esc(row.leads != null ? Number(row.leads).toLocaleString('es-MX') : '--') + '</td>' +
+        '<td>' + esc(row.meetings != null ? Number(row.meetings).toLocaleString('es-MX') : '--') + '</td>' +
+        '<td>' + esc(row.closes != null ? Number(row.closes).toLocaleString('es-MX') : (row.cierres != null ? Number(row.cierres).toLocaleString('es-MX') : '--')) + '</td>' +
+        '<td>' + fmt(row.revenue) + '</td>' +
+        '<td>' + (row.roi != null ? fmtPct(row.roi) : '--') + '</td>' +
+      '</tr>';
+    });
+    tbody.innerHTML = html;
+  }
+
+  function renderExecLog(data) {
+    var tbody = document.getElementById('exec-log-body');
+
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Sin datos</td></tr>';
+      return;
+    }
+
+    var html = '';
+    data.forEach(function(row) {
+      html += '<tr>' +
+        '<td style="font-weight:400;color:var(--muted);white-space:nowrap;">' + fmtTimestamp(row.timestamp || row.created_at || row.executed_at) + '</td>' +
+        '<td>' + esc(row.action || row.accion || '--') + '</td>' +
+        '<td style="font-weight:400;">' + esc(row.module || row.modulo || '--') + '</td>' +
+        '<td>' + resultBadge(row.result || row.resultado) + '</td>' +
+        '<td style="font-weight:400;color:var(--muted);">' + fmtDuration(row.duration_ms || row.duracion || row.duration) + '</td>' +
+      '</tr>';
+    });
+    tbody.innerHTML = html;
+  }
+
+  function updateTimestamp() {
+    var now = new Date();
+    document.getElementById('last-updated').textContent =
+      'Ultima actualizacion: ' + now.toLocaleString('es-MX', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      });
+  }
+
+  // ── INIT ──
+  function initDashboard() {
+    loadAll();
+
+    document.getElementById('btn-refresh').addEventListener('click', function() {
+      var btn = this;
+      btn.classList.add('loading');
+      loadAll().then(function() {
+        btn.classList.remove('loading');
+      });
+    });
+
+    // Auto-refresh every 5 minutes
+    setInterval(function() { loadAll(); }, 5 * 60 * 1000);
+  }
+
+  function loadAll() {
+    updateTimestamp();
+
+    return Promise.all([
+      supaFetch('v_system_health?select=*'),
+      supaFetch('v_api_health?select=*'),
+      supaFetch('v_email_health?select=*'),
+      supaFetch('v_channel_trends?select=*'),
+      supaFetch('execution_log?select=*&order=timestamp.desc&limit=20')
+    ]).then(function(results) {
+      var healthData = results[0];
+      var apiData = results[1];
+      var emailData = results[2];
+      var channelData = results[3];
+      var execData = results[4];
+
+      renderAlerts(healthData);
+      renderModules(healthData);
+      renderApiHealth(apiData);
+      renderEmailHealth(emailData);
+      renderChannelTrends(channelData);
+      renderExecLog(execData);
+      updateTimestamp();
+    }).catch(function(err) {
+      console.error('loadAll error:', err);
+    });
+  }
+</script>
+
+</body>
+</html>
