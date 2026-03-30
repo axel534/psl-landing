@@ -1137,7 +1137,7 @@ function loadDashboard() {
 
     document.getElementById('d-progressLabel').textContent = fmt(mrrProyectado) + ' / $450,000';
     document.getElementById('d-progressFill').style.width = Math.min(pct, 100) + '%';
-    document.getElementById('d-metricMRR').textContent = fmt(totalMRR) + ' + ' + fmt(pipelineEnCierre) + ' en cierre';
+    document.getElementById('d-metricMRR').textContent = fmt(totalMRR);
     document.getElementById('d-metricGap').textContent = fmt(Math.max(0, MRR_TARGET - mrrProyectado));
     document.getElementById('d-metricNeeded').textContent = needed;
     document.getElementById('sidebar-mrr').textContent = 'MRR: ' + fmt(totalMRR);
