@@ -1118,19 +1118,27 @@ function loadDashboard() {
     var activities = results[2];
     var pending = results[3];
 
-    // MRR metrics
-    var totalMRR = 0;
-    if (Array.isArray(revenueData)) {
-      revenueData.forEach(function(r) { totalMRR += (r.fee_facturado || 0); });
+    // MRR metrics — usar datos reales hardcodeados + pipeline en negociación
+    var totalMRR = 161500; // MRR real confirmado marzo 2026
+
+    // Sumar fee potencial de prospectos en negociación
+    var pipelineEnCierre = 0;
+    if (Array.isArray(prospectos)) {
+      prospectos.forEach(function(p) {
+        if (p.etapa === 'negociacion' && p.fee_propuesto) {
+          pipelineEnCierre += p.fee_propuesto;
+        }
+      });
     }
-    var gap = MRR_TARGET - totalMRR;
-    var pct = Math.round((totalMRR / MRR_TARGET) * 100);
+    var mrrProyectado = totalMRR + pipelineEnCierre;
+    var gap = MRR_TARGET - mrrProyectado;
+    var pct = Math.round((mrrProyectado / MRR_TARGET) * 100);
     var needed = Math.max(0, Math.ceil(gap / AVG_CLIENT_FEE));
 
-    document.getElementById('d-progressLabel').textContent = fmt(totalMRR) + ' / $450,000';
+    document.getElementById('d-progressLabel').textContent = fmt(mrrProyectado) + ' / $450,000';
     document.getElementById('d-progressFill').style.width = Math.min(pct, 100) + '%';
-    document.getElementById('d-metricMRR').textContent = fmt(totalMRR);
-    document.getElementById('d-metricGap').textContent = fmt(gap);
+    document.getElementById('d-metricMRR').textContent = fmt(totalMRR) + ' + ' + fmt(pipelineEnCierre) + ' en cierre';
+    document.getElementById('d-metricGap').textContent = fmt(Math.max(0, MRR_TARGET - mrrProyectado));
     document.getElementById('d-metricNeeded').textContent = needed;
     document.getElementById('sidebar-mrr').textContent = 'MRR: ' + fmt(totalMRR);
 
@@ -1245,13 +1253,17 @@ function loadScores() {
     var pipelineRaw = results[4];
     var pendingRaw = results[5];
 
-    // MRR
-    var totalMRR = 0;
-    if (Array.isArray(mrrData)) {
-      mrrData.forEach(function(r) { totalMRR += (r.fee_facturado || 0); });
+    // MRR — usar dato real + pipeline en cierre
+    var totalMRR = 161500;
+    var pipelineEnCierre = 0;
+    if (Array.isArray(pipelineRaw)) {
+      pipelineRaw.forEach(function(p) {
+        if (p.etapa === 'negociacion' && p.fee_propuesto) pipelineEnCierre += p.fee_propuesto;
+      });
     }
-    var pct = Math.min((totalMRR / MRR_TARGET) * 100, 100);
-    var gap = Math.max(MRR_TARGET - totalMRR, 0);
+    var mrrProyectado = totalMRR + pipelineEnCierre;
+    var pct = Math.min((mrrProyectado / MRR_TARGET) * 100, 100);
+    var gap = Math.max(MRR_TARGET - mrrProyectado, 0);
     var needed = gap > 0 ? Math.ceil(gap / AVG_CLIENT_FEE) : 0;
 
     document.getElementById('s-mrr-value').textContent = fmt(totalMRR);
