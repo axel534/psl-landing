@@ -685,6 +685,10 @@
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07"/></svg>
       Sales Plan
     </div>
+    <div class="nav-item" onclick="switchTab('tools')" id="nav-tools" data-tab="tools">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      Ventas Tools
+    </div>
     <div class="nav-separator"></div>
     <div class="nav-ext-label">Links externos</div>
     <a class="nav-ext" href="https://app.instantly.ai" target="_blank" rel="noopener">
@@ -862,6 +866,9 @@
   <!-- TAB 4: SALES PLAN -->
   <div class="tab-content" id="tab-salesplan"></div>
 
+  <!-- TAB 5: VENTAS TOOLS -->
+  <div id="tab-tools" class="tab-content"></div>
+
 </div>
 
 <script>
@@ -878,7 +885,7 @@ var AVG_CLIENT_FEE = 25000;
   var error = document.getElementById('auth-error');
 
   function tryAuth() {
-    if (input.value === 'psl2026') {
+    if (input.value === '1108') {
       document.getElementById('auth-overlay').classList.add('hidden');
       document.getElementById('app-header').style.display = 'flex';
       document.getElementById('sidebar').style.display = 'flex';
@@ -1759,7 +1766,7 @@ function loadSalesPlan() {
 // =========================================
 // TAB NAVIGATION
 // =========================================
-var tabLoaded = { dashboard: false, scores: false, health: false, salesplan: false };
+var tabLoaded = { dashboard: false, scores: false, health: false, salesplan: false, tools: false };
 
 function switchTab(tabName) {
   // Update nav items
@@ -1784,6 +1791,7 @@ function switchTab(tabName) {
     else if (tabName === 'scores') loadScores();
     else if (tabName === 'health') loadHealth();
     else if (tabName === 'salesplan') loadSalesPlan();
+    else if (tabName === 'tools') loadTools();
   }
 
   // Close mobile sidebar
@@ -1821,7 +1829,7 @@ function initApp() {
 
   // Auto-refresh every 5 minutes
   setInterval(function() {
-    tabLoaded = { dashboard: false, scores: false, health: false, salesplan: false };
+    tabLoaded = { dashboard: false, scores: false, health: false, salesplan: false, tools: false };
     var activeTab = document.querySelector('.nav-item.active');
     if (activeTab) {
       var tab = activeTab.getAttribute('data-tab');
@@ -1830,6 +1838,7 @@ function initApp() {
       else if (tab === 'scores') loadScores();
       else if (tab === 'health') loadHealth();
       else if (tab === 'salesplan') loadSalesPlan();
+      else if (tab === 'tools') loadTools();
     }
   }, 5 * 60 * 1000);
 }
