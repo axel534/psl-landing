@@ -689,6 +689,10 @@
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
       Ventas Tools
     </div>
+    <div class="nav-item" onclick="switchTab('biblioteca')" id="nav-biblioteca" data-tab="biblioteca">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      Biblioteca
+    </div>
     <div class="nav-separator"></div>
     <div class="nav-ext-label">Links externos</div>
     <a class="nav-ext" href="https://app.instantly.ai" target="_blank" rel="noopener">
@@ -868,6 +872,9 @@
 
   <!-- TAB 5: VENTAS TOOLS -->
   <div id="tab-tools" class="tab-content"></div>
+
+  <!-- TAB 6: BIBLIOTECA -->
+  <div id="tab-biblioteca" class="tab-content"></div>
 
 </div>
 
@@ -2168,9 +2175,292 @@ function generateQuote() {
 }
 
 // =========================================
+// UTILITY: TOGGLE SECTION & COPY
+// =========================================
+function toggleSection(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var isHidden = el.style.display === 'none' || el.style.display === '';
+  el.style.display = isHidden ? 'block' : 'none';
+  var btn = el.previousElementSibling;
+  if (btn) {
+    var arrow = btn.querySelector('.toggle-arrow');
+    if (arrow) arrow.textContent = isHidden ? 'v' : '>';
+  }
+}
+
+function copyToClip(text) {
+  navigator.clipboard.writeText(text).then(function() {
+    var toast = document.createElement('div');
+    toast.textContent = 'Copiado';
+    toast.style.cssText = 'position:fixed;bottom:20px;right:20px;background:var(--accent);color:#000;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;';
+    document.body.appendChild(toast);
+    setTimeout(function() { toast.remove(); }, 2000);
+  });
+}
+
+// =========================================
+// TAB 6: BIBLIOTECA
+// =========================================
+function loadBiblioteca() {
+  var container = document.getElementById('tab-biblioteca');
+
+  container.innerHTML = '\
+    <div class="tab-header">\
+      <h2>Biblioteca de Ventas</h2>\
+      <p class="tab-subtitle">Frameworks, templates, subject lines y assets de comunicacion</p>\
+    </div>\
+    \
+    <!-- SECCION 1: FRAMEWORKS -->\
+    <div style="margin-bottom:24px;">\
+      <h3 style="color:var(--text);margin-bottom:12px;font-size:16px;">Frameworks</h3>\
+      \
+      <div class="metric-card" style="cursor:pointer;margin-bottom:8px;" onclick="toggleSection(\'fw-nicho\')">\
+        <div style="display:flex;justify-content:space-between;align-items:center;">\
+          <span style="font-weight:600;color:var(--text);">Nicho / ICP</span>\
+          <span class="toggle-arrow" style="color:var(--text-secondary);">></span>\
+        </div>\
+      </div>\
+      <div id="fw-nicho" style="display:none;padding:12px 16px;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;">\
+        <p style="color:var(--text-secondary);font-size:13px;line-height:1.6;margin:0;">\
+          <strong style="color:var(--text);">A quien:</strong> Directores/CEOs B2B industriales MX.<br>\
+          <strong style="color:var(--text);">Problema:</strong> Dependen de referidos.<br>\
+          <strong style="color:var(--text);">Declaracion:</strong> Ayudo a directores de empresas industriales en Mexico que dependen de referidos a generar 20+ leads calificados por mes con Google Ads.\
+        </p>\
+      </div>\
+      \
+      <div class="metric-card" style="cursor:pointer;margin-bottom:8px;" onclick="toggleSection(\'fw-avatar\')">\
+        <div style="display:flex;justify-content:space-between;align-items:center;">\
+          <span style="font-weight:600;color:var(--text);">Avatar Roberto</span>\
+          <span class="toggle-arrow" style="color:var(--text-secondary);">></span>\
+        </div>\
+      </div>\
+      <div id="fw-avatar" style="display:none;padding:12px 16px;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;">\
+        <p style="color:var(--text-secondary);font-size:13px;line-height:1.6;margin:0;">\
+          <strong style="color:var(--text);">Perfil:</strong> Director General, 45 anos, QRO.<br>\
+          <strong style="color:var(--text);">Dolores:</strong> ventas dependen de referidos, equipo persigue leads muertos, ya probaron Ads sin resultado, no saben cuantos clientes van a cerrar.<br>\
+          <strong style="color:var(--text);">Miedos:</strong> competencia gana, depender de 2-3 clientes.<br>\
+          <strong style="color:var(--text);">Trigger:</strong> perdio cliente, competidor gano contrato.\
+        </p>\
+      </div>\
+      \
+      <div class="metric-card" style="cursor:pointer;margin-bottom:8px;" onclick="toggleSection(\'fw-transf\')">\
+        <div style="display:flex;justify-content:space-between;align-items:center;">\
+          <span style="font-weight:600;color:var(--text);">Transformacion</span>\
+          <span class="toggle-arrow" style="color:var(--text-secondary);">></span>\
+        </div>\
+      </div>\
+      <div id="fw-transf" style="display:none;padding:12px 16px;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;">\
+        <p style="color:var(--text-secondary);font-size:13px;line-height:1.6;margin:0;">\
+          <strong style="color:var(--text);">De:</strong> referidos, leads muertos, empezar de cero.<br>\
+          <strong style="color:var(--text);">A:</strong> 20+ leads/mes, equipo solo cierra, pipeline predecible.<br>\
+          <strong style="color:var(--text);">Tiempo:</strong> 60 dias.<br>\
+          <strong style="color:var(--text);">Mecanismo:</strong> Ads + Landing + CRM.\
+        </p>\
+      </div>\
+      \
+      <div class="metric-card" style="cursor:pointer;margin-bottom:8px;" onclick="toggleSection(\'fw-oferta\')">\
+        <div style="display:flex;justify-content:space-between;align-items:center;">\
+          <span style="font-weight:600;color:var(--text);">Oferta</span>\
+          <span class="toggle-arrow" style="color:var(--text-secondary);">></span>\
+        </div>\
+      </div>\
+      <div id="fw-oferta" style="display:none;padding:12px 16px;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;">\
+        <p style="color:var(--text-secondary);font-size:13px;line-height:1.6;margin:0;">\
+          <strong style="color:var(--text);">Precio:</strong> $25K/mes todo incluido.<br>\
+          <strong style="color:var(--text);">Incluye:</strong> Google Ads + Landing + CRM + reporte semanal + reunion mensual.<br>\
+          <strong style="color:var(--text);">Setup:</strong> $15K.<br>\
+          <strong style="color:var(--text);">Garantia:</strong> 60 dias.<br>\
+          <strong style="color:var(--text);">Contrato:</strong> 3 meses luego libre.\
+        </p>\
+      </div>\
+    </div>\
+    \
+    <!-- SECCION 2: SUBJECT LINES -->\
+    <div style="margin-bottom:24px;">\
+      <h3 style="color:var(--text);margin-bottom:12px;font-size:16px;">Subject Lines</h3>\
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">\
+        <div class="metric-card">\
+          <div style="font-weight:600;color:#4ade80;margin-bottom:8px;font-size:13px;">Funcionan</div>\
+          <ul style="list-style:none;padding:0;margin:0;font-size:12px;color:var(--text-secondary);line-height:1.8;">\
+            <li style="cursor:pointer;" onclick="copyToClip(\'{{first_name}} vi algo en sus anuncios\')">{{first_name}} vi algo en sus anuncios</li>\
+            <li style="cursor:pointer;" onclick="copyToClip(\'pregunta rapida\')">pregunta rapida</li>\
+            <li style="cursor:pointer;" onclick="copyToClip(\'lo que paso con una empresa como {{company}}\')">lo que paso con una empresa como {{company}}</li>\
+            <li style="cursor:pointer;" onclick="copyToClip(\'le prepare algo\')">le prepare algo</li>\
+            <li style="cursor:pointer;" onclick="copyToClip(\'nueva estrategia para {{company}}\')">nueva estrategia para {{company}}</li>\
+            <li style="cursor:pointer;" onclick="copyToClip(\'listo?\')">listo?</li>\
+            <li style="cursor:pointer;" onclick="copyToClip(\'elementos a mejorar en {{company}}\')">elementos a mejorar en {{company}}</li>\
+            <li style="cursor:pointer;" onclick="copyToClip(\'cierro por ahora\')">cierro por ahora</li>\
+            <li style="cursor:pointer;" onclick="copyToClip(\'revise los ads de {{company}}\')">revise los ads de {{company}}</li>\
+          </ul>\
+        </div>\
+        <div class="metric-card">\
+          <div style="font-weight:600;color:#f87171;margin-bottom:8px;font-size:13px;">Evitar</div>\
+          <ul style="list-style:none;padding:0;margin:0;font-size:12px;color:var(--text-secondary);line-height:1.8;">\
+            <li>MAYUSCULAS</li>\
+            <li>URGENTE</li>\
+            <li>Gratis/Comprar/Ventas</li>\
+            <li>Emojis</li>\
+            <li>+7 palabras</li>\
+            <li>Amigo</li>\
+            <li>!!! multiples</li>\
+          </ul>\
+        </div>\
+      </div>\
+    </div>\
+    \
+    <!-- SECCION 3: CTAs -->\
+    <div style="margin-bottom:24px;">\
+      <h3 style="color:var(--text);margin-bottom:12px;font-size:16px;">CTAs por Canal</h3>\
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">\
+        <div class="metric-card">\
+          <div style="font-weight:600;color:var(--accent);margin-bottom:8px;font-size:13px;">Email</div>\
+          <ul style="list-style:none;padding:0;margin:0;font-size:12px;color:var(--text-secondary);line-height:1.8;">\
+            <li style="cursor:pointer;" onclick="copyToClip(\'Tienen 15 minutos esta semana?\')">Tienen 15 minutos esta semana?</li>\
+            <li style="cursor:pointer;" onclick="copyToClip(\'Quiere que le cuente que aplicaria?\')">Quiere que le cuente que aplicaria?</li>\
+            <li style="cursor:pointer;" onclick="copyToClip(\'Le muestro en 20 min. Sin rollo.\')">Le muestro en 20 min. Sin rollo.</li>\
+          </ul>\
+        </div>\
+        <div class="metric-card">\
+          <div style="font-weight:600;color:#25d366;margin-bottom:8px;font-size:13px;">WhatsApp</div>\
+          <ul style="list-style:none;padding:0;margin:0;font-size:12px;color:var(--text-secondary);line-height:1.8;">\
+            <li style="cursor:pointer;" onclick="copyToClip(\'te escribi por email sobre las campanas. Lo viste?\')">te escribi por email sobre las campanas. Lo viste?</li>\
+            <li style="cursor:pointer;" onclick="copyToClip(\'Te funciona 15 min esta semana?\')">Te funciona 15 min esta semana?</li>\
+            <li style="cursor:pointer;" onclick="copyToClip(\'Te dejo mi calendario: [link]\')">Te dejo mi calendario: [link]</li>\
+          </ul>\
+        </div>\
+        <div class="metric-card">\
+          <div style="font-weight:600;color:#0a66c2;margin-bottom:8px;font-size:13px;">LinkedIn</div>\
+          <ul style="list-style:none;padding:0;margin:0;font-size:12px;color:var(--text-secondary);line-height:1.8;">\
+            <li style="cursor:pointer;" onclick="copyToClip(\'Vi que {{company}} esta en [industria]. Me gustaria conectar.\')">Vi que {{company}} esta en [industria]. Me gustaria conectar.</li>\
+            <li style="cursor:pointer;" onclick="copyToClip(\'Como manejan la generacion de leads hoy?\')">Como manejan la generacion de leads hoy?</li>\
+          </ul>\
+        </div>\
+      </div>\
+    </div>\
+    \
+    <!-- SECCION 4: PRIMERAS LINEAS -->\
+    <div style="margin-bottom:24px;">\
+      <h3 style="color:var(--text);margin-bottom:12px;font-size:16px;">Primeras Lineas</h3>\
+      <div class="metric-card" style="overflow-x:auto;">\
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">\
+          <thead>\
+            <tr style="border-bottom:1px solid var(--border);">\
+              <th style="text-align:left;padding:8px;color:var(--text);font-weight:600;">Hallazgo</th>\
+              <th style="text-align:left;padding:8px;color:var(--text);font-weight:600;">Primera linea</th>\
+              <th style="padding:8px;width:70px;"></th>\
+            </tr>\
+          </thead>\
+          <tbody>\
+            <tr style="border-bottom:1px solid var(--border);">\
+              <td style="padding:8px;color:var(--accent);font-weight:500;">Sin formulario</td>\
+              <td style="padding:8px;color:var(--text-secondary);">su sitio no tiene formulario de contacto claro -- estan pagando clicks que no pueden capturar</td>\
+              <td style="padding:8px;text-align:center;"><button onclick="copyToClip(\'su sitio no tiene formulario de contacto claro -- estan pagando clicks que no pueden capturar\')" style="background:var(--accent);color:#000;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:600;">Copiar</button></td>\
+            </tr>\
+            <tr style="border-bottom:1px solid var(--border);">\
+              <td style="padding:8px;color:var(--accent);font-weight:500;">Sin remarketing</td>\
+              <td style="padding:8px;color:var(--text-secondary);">no tienen remarketing configurado -- el 95% de los visitantes no compra la primera vez y se pierden</td>\
+              <td style="padding:8px;text-align:center;"><button onclick="copyToClip(\'no tienen remarketing configurado -- el 95% de los visitantes no compra la primera vez y se pierden\')" style="background:var(--accent);color:#000;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:600;">Copiar</button></td>\
+            </tr>\
+            <tr style="border-bottom:1px solid var(--border);">\
+              <td style="padding:8px;color:var(--accent);font-weight:500;">Sitio lento</td>\
+              <td style="padding:8px;color:var(--text-secondary);">su sitio tarda mas de 5 segundos en cargar en mobile -- eso sube el CPC y baja el Quality Score</td>\
+              <td style="padding:8px;text-align:center;"><button onclick="copyToClip(\'su sitio tarda mas de 5 segundos en cargar en mobile -- eso sube el CPC y baja el Quality Score\')" style="background:var(--accent);color:#000;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:600;">Copiar</button></td>\
+            </tr>\
+            <tr style="border-bottom:1px solid var(--border);">\
+              <td style="padding:8px;color:var(--accent);font-weight:500;">Sin CRM</td>\
+              <td style="padding:8px;color:var(--text-secondary);">no vi un sistema de seguimiento de leads -- los que llegan por ads probablemente se pierden en un Excel</td>\
+              <td style="padding:8px;text-align:center;"><button onclick="copyToClip(\'no vi un sistema de seguimiento de leads -- los que llegan por ads probablemente se pierden en un Excel\')" style="background:var(--accent);color:#000;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:600;">Copiar</button></td>\
+            </tr>\
+            <tr style="border-bottom:1px solid var(--border);">\
+              <td style="padding:8px;color:var(--accent);font-weight:500;">UA obsoleto</td>\
+              <td style="padding:8px;color:var(--text-secondary);">todavia usan Universal Analytics que Google descontinuo -- no estan midiendo bien las conversiones</td>\
+              <td style="padding:8px;text-align:center;"><button onclick="copyToClip(\'todavia usan Universal Analytics que Google descontinuo -- no estan midiendo bien las conversiones\')" style="background:var(--accent);color:#000;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:600;">Copiar</button></td>\
+            </tr>\
+            <tr style="border-bottom:1px solid var(--border);">\
+              <td style="padding:8px;color:var(--accent);font-weight:500;">Competidor activo</td>\
+              <td style="padding:8px;color:var(--text-secondary);">sus competidores [nombre] ya estan en Google Ads y estan capturando la demanda que ustedes estan perdiendo</td>\
+              <td style="padding:8px;text-align:center;"><button onclick="copyToClip(\'sus competidores [nombre] ya estan en Google Ads y estan capturando la demanda que ustedes estan perdiendo\')" style="background:var(--accent);color:#000;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:600;">Copiar</button></td>\
+            </tr>\
+            <tr style="border-bottom:1px solid var(--border);">\
+              <td style="padding:8px;color:var(--accent);font-weight:500;">Ads genericos</td>\
+              <td style="padding:8px;color:var(--text-secondary);">sus anuncios no tienen extensiones de precio ni de ubicacion -- eso les baja el CTR vs competencia</td>\
+              <td style="padding:8px;text-align:center;"><button onclick="copyToClip(\'sus anuncios no tienen extensiones de precio ni de ubicacion -- eso les baja el CTR vs competencia\')" style="background:var(--accent);color:#000;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:600;">Copiar</button></td>\
+            </tr>\
+            <tr>\
+              <td style="padding:8px;color:var(--accent);font-weight:500;">Horarios mal</td>\
+              <td style="padding:8px;color:var(--text-secondary);">los anuncios corren 24/7 pero su tipo de cliente busca en horario laboral -- estan pagando clicks de madrugada</td>\
+              <td style="padding:8px;text-align:center;"><button onclick="copyToClip(\'los anuncios corren 24/7 pero su tipo de cliente busca en horario laboral -- estan pagando clicks de madrugada\')" style="background:var(--accent);color:#000;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:600;">Copiar</button></td>\
+            </tr>\
+          </tbody>\
+        </table>\
+      </div>\
+    </div>\
+    \
+    <!-- SECCION 5: A/B TESTING TRACKER -->\
+    <div style="margin-bottom:24px;">\
+      <h3 style="color:var(--text);margin-bottom:12px;font-size:16px;">A/B Testing Tracker</h3>\
+      <div class="metric-card" style="overflow-x:auto;">\
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">\
+          <thead>\
+            <tr style="border-bottom:1px solid var(--border);">\
+              <th style="text-align:left;padding:8px;color:var(--text);font-weight:600;">Variable</th>\
+              <th style="text-align:left;padding:8px;color:var(--text);font-weight:600;">Variante A</th>\
+              <th style="text-align:left;padding:8px;color:var(--text);font-weight:600;">Variante B</th>\
+              <th style="text-align:center;padding:8px;color:var(--text);font-weight:600;">Estado</th>\
+            </tr>\
+          </thead>\
+          <tbody>\
+            <tr style="border-bottom:1px solid var(--border);">\
+              <td style="padding:8px;color:var(--accent);font-weight:500;">Subject</td>\
+              <td style="padding:8px;color:var(--text-secondary);">vi algo</td>\
+              <td style="padding:8px;color:var(--text-secondary);">pregunta rapida</td>\
+              <td style="padding:8px;text-align:center;"><span style="background:var(--accent);color:#000;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Pendiente</span></td>\
+            </tr>\
+            <tr style="border-bottom:1px solid var(--border);">\
+              <td style="padding:8px;color:var(--accent);font-weight:500;">CTA</td>\
+              <td style="padding:8px;color:var(--text-secondary);">15 min</td>\
+              <td style="padding:8px;color:var(--text-secondary);">20 min</td>\
+              <td style="padding:8px;text-align:center;"><span style="background:var(--accent);color:#000;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Pendiente</span></td>\
+            </tr>\
+            <tr style="border-bottom:1px solid var(--border);">\
+              <td style="padding:8px;color:var(--accent);font-weight:500;">Primera linea</td>\
+              <td style="padding:8px;color:var(--text-secondary);">sin form</td>\
+              <td style="padding:8px;color:var(--text-secondary);">sin remarketing</td>\
+              <td style="padding:8px;text-align:center;"><span style="background:var(--accent);color:#000;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Pendiente</span></td>\
+            </tr>\
+            <tr style="border-bottom:1px solid var(--border);">\
+              <td style="padding:8px;color:var(--accent);font-weight:500;">LinkedIn</td>\
+              <td style="padding:8px;color:var(--text-secondary);">con obs</td>\
+              <td style="padding:8px;color:var(--text-secondary);">sin obs</td>\
+              <td style="padding:8px;text-align:center;"><span style="background:var(--accent);color:#000;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Pendiente</span></td>\
+            </tr>\
+            <tr>\
+              <td style="padding:8px;color:var(--accent);font-weight:500;">WhatsApp</td>\
+              <td style="padding:8px;color:var(--text-secondary);">te escribi</td>\
+              <td style="padding:8px;color:var(--text-secondary);">vi algo</td>\
+              <td style="padding:8px;text-align:center;"><span style="background:var(--accent);color:#000;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Pendiente</span></td>\
+            </tr>\
+          </tbody>\
+        </table>\
+      </div>\
+      <div class="metric-card" style="margin-top:12px;">\
+        <div style="font-weight:600;color:var(--text);margin-bottom:8px;font-size:13px;">Reglas de Testing</div>\
+        <ul style="list-style:none;padding:0;margin:0;font-size:12px;color:var(--text-secondary);line-height:1.8;">\
+          <li>1 variable a la vez</li>\
+          <li>Min 50 envios por variante</li>\
+          <li>Open rate decide subjects</li>\
+          <li>Reply rate decide body</li>\
+        </ul>\
+      </div>\
+    </div>\
+  ';
+}
+
+// =========================================
 // TAB NAVIGATION
 // =========================================
-var tabLoaded = { dashboard: false, scores: false, health: false, salesplan: false, tools: false };
+var tabLoaded = { dashboard: false, scores: false, health: false, salesplan: false, tools: false, biblioteca: false };
 
 function switchTab(tabName) {
   // Update nav items
@@ -2196,6 +2486,7 @@ function switchTab(tabName) {
     else if (tabName === 'health') loadHealth();
     else if (tabName === 'salesplan') loadSalesPlan();
     else if (tabName === 'tools') loadTools();
+    else if (tabName === 'biblioteca') loadBiblioteca();
   }
 
   // Close mobile sidebar
@@ -2233,7 +2524,7 @@ function initApp() {
 
   // Auto-refresh every 5 minutes
   setInterval(function() {
-    tabLoaded = { dashboard: false, scores: false, health: false, salesplan: false, tools: false };
+    tabLoaded = { dashboard: false, scores: false, health: false, salesplan: false, tools: false, biblioteca: false };
     var activeTab = document.querySelector('.nav-item.active');
     if (activeTab) {
       var tab = activeTab.getAttribute('data-tab');
@@ -2243,6 +2534,7 @@ function initApp() {
       else if (tab === 'health') loadHealth();
       else if (tab === 'salesplan') loadSalesPlan();
       else if (tab === 'tools') loadTools();
+      else if (tab === 'biblioteca') loadBiblioteca();
     }
   }, 5 * 60 * 1000);
 }
