@@ -1764,6 +1764,358 @@ function loadSalesPlan() {
 }
 
 // =========================================
+// TAB 5: VENTAS TOOLS
+// =========================================
+function loadTools() {
+  var container = document.getElementById('tab-tools');
+
+  container.innerHTML = '\
+<style>\
+.tools-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}\
+.tool-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;cursor:pointer;transition:border-color .2s,transform .15s}\
+.tool-card:hover{border-color:var(--accent);transform:translateY(-2px)}\
+.tool-card-icon{margin-bottom:12px;color:var(--muted)}\
+.tool-card-icon svg{width:28px;height:28px}\
+.tool-card h3{font-size:0.9375rem;font-weight:700;margin-bottom:6px}\
+.tool-card p{font-size:0.8125rem;color:var(--muted);line-height:1.5}\
+.tool-section{display:none;animation:toolSlide .3s ease;margin-bottom:32px}\
+.tool-section.visible{display:block}\
+@keyframes toolSlide{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}\
+.tool-section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}\
+.tool-section-header h2{font-size:1.125rem;font-weight:700}\
+.tool-close-btn{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;padding:6px 14px;font-size:0.8125rem;font-family:var(--font);transition:border-color .2s}\
+.tool-close-btn:hover{border-color:var(--accent);color:var(--text)}\
+.quote-form{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:700px}\
+.quote-form label{font-size:0.8125rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}\
+.quote-form label.full-width{grid-column:1/-1}\
+.quote-form input,.quote-form select,.quote-form textarea{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:var(--font);font-size:0.875rem;outline:none}\
+.quote-form input:focus,.quote-form select:focus,.quote-form textarea:focus{border-color:var(--accent)}\
+.quote-form textarea{resize:vertical;min-height:60px}\
+.quote-form select{cursor:pointer;-webkit-appearance:none;appearance:none}\
+.quote-gen-btn{grid-column:1/-1;background:var(--accent);color:white;border:none;border-radius:8px;padding:12px;font-family:var(--font);font-size:0.875rem;font-weight:700;cursor:pointer;transition:background .2s}\
+.quote-gen-btn:hover{background:var(--accent-hover)}\
+.quote-preview{background:#fff;color:#111;border-radius:var(--radius);padding:40px;margin-top:24px;max-width:700px;font-size:0.875rem;line-height:1.7}\
+.quote-preview h2{font-size:1.25rem;font-weight:800;color:#000;margin-bottom:4px}\
+.quote-preview .qp-date{color:#666;margin-bottom:20px;font-size:0.8125rem}\
+.quote-preview .qp-label{font-weight:700;color:#000;margin-top:16px;margin-bottom:4px}\
+.quote-preview table{width:100%;border-collapse:collapse;margin:12px 0}\
+.quote-preview th,.quote-preview td{border:1px solid #ddd;padding:10px 14px;text-align:left;font-size:0.8125rem}\
+.quote-preview th{background:#f5f5f5;font-weight:700}\
+.quote-preview .qp-total{font-size:1rem;font-weight:800;color:#000;margin:16px 0}\
+.quote-preview .qp-terms{color:#555;font-size:0.8125rem;margin-top:16px;line-height:1.7}\
+.quote-preview .qp-firma{margin-top:24px;padding-top:16px;border-top:1px solid #ddd}\
+.quote-print-btn{background:var(--accent);color:white;border:none;border-radius:8px;padding:10px 20px;font-family:var(--font);font-size:0.8125rem;font-weight:700;cursor:pointer;margin-top:16px}\
+.port-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}\
+.port-card{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:16px}\
+.port-card h4{font-size:0.8125rem;font-weight:700;margin-bottom:4px}\
+.port-card p{font-size:0.75rem;color:var(--muted)}\
+.port-stats{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:16px;margin-top:16px;font-size:0.875rem;color:var(--muted)}\
+.email-card{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}\
+.email-card h4{font-size:0.875rem;font-weight:700;margin-bottom:4px}\
+.email-card .email-subject{color:var(--accent);font-size:0.8125rem;margin-bottom:12px}\
+.email-card pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;font-family:var(--font);font-size:0.8125rem;color:var(--muted);white-space:pre-wrap;line-height:1.6;margin-bottom:12px}\
+.copy-btn{background:var(--accent);color:white;border:none;border-radius:6px;padding:8px 16px;font-family:var(--font);font-size:0.75rem;font-weight:700;cursor:pointer;transition:background .2s}\
+.copy-btn:hover{background:var(--accent-hover)}\
+.spin-section{margin-bottom:20px}\
+.spin-section h4{font-size:0.875rem;font-weight:700;margin-bottom:8px;color:var(--accent)}\
+.spin-section ul{list-style:none;padding:0}\
+.spin-section li{font-size:0.8125rem;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--border);line-height:1.5}\
+.spin-section li:last-child{border-bottom:none}\
+.obj-card{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}\
+.obj-card h4{font-size:0.875rem;font-weight:700;margin-bottom:8px}\
+.obj-card .obj-objection{color:var(--muted);font-size:0.8125rem;margin-bottom:10px;font-style:italic}\
+.obj-card .obj-response{font-size:0.8125rem;color:var(--text);line-height:1.6}\
+.comp-table{width:100%;border-collapse:collapse;font-size:0.8125rem}\
+.comp-table th,.comp-table td{border:1px solid var(--border);padding:12px 14px;text-align:left}\
+.comp-table th{background:var(--surface-2);font-weight:700;color:var(--muted)}\
+.comp-table td:last-child{color:var(--accent);font-weight:600}\
+.comp-table thead th:last-child{color:var(--accent)}\
+.checklist-item{font-size:0.8125rem;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--border)}\
+@media(max-width:768px){.tools-grid{grid-template-columns:1fr}.quote-form{grid-template-columns:1fr}}\
+@media print{body *{visibility:hidden}.quote-preview,.quote-preview *{visibility:visible}.quote-preview{position:absolute;left:0;top:0;width:100%;background:#fff}}\
+</style>\
+<h1 style="font-size:1.5rem;font-weight:800;margin-bottom:24px">Ventas Tools</h1>\
+<div class="tools-grid">\
+  <div class="tool-card" onclick="toggleToolSection(\'sec-quote\')">\
+    <div class="tool-card-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>\
+    <h3>Generar Cotizacion</h3>\
+    <p>Crea propuestas comerciales con pricing y terminos</p>\
+  </div>\
+  <div class="tool-card" onclick="toggleToolSection(\'sec-portfolio\')">\
+    <div class="tool-card-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></div>\
+    <h3>Ver Portafolio</h3>\
+    <p>Clientes activos organizados por tipo</p>\
+  </div>\
+  <div class="tool-card" onclick="toggleToolSection(\'sec-emails\')">\
+    <div class="tool-card-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>\
+    <h3>Secuencias de Email</h3>\
+    <p>4 emails B2B listos para copiar y personalizar</p>\
+  </div>\
+  <div class="tool-card" onclick="toggleToolSection(\'sec-discovery\')">\
+    <div class="tool-card-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>\
+    <h3>Guion Discovery</h3>\
+    <p>Framework SPIN + MEDDPICC para calls de venta</p>\
+  </div>\
+  <div class="tool-card" onclick="toggleToolSection(\'sec-objections\')">\
+    <div class="tool-card-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>\
+    <h3>Manejo de Objeciones</h3>\
+    <p>Respuestas a las 4 objeciones mas comunes</p>\
+  </div>\
+  <div class="tool-card" onclick="toggleToolSection(\'sec-compare\')">\
+    <div class="tool-card-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>\
+    <h3>Comparativo PSL</h3>\
+    <p>PSL vs Agencia Grande vs Freelancer vs In-House</p>\
+  </div>\
+</div>\
+\
+<!-- SECTION: Cotizacion -->\
+<div id="sec-quote" class="tool-section">\
+  <div class="tool-section-header"><h2>Generar Cotizacion</h2><button class="tool-close-btn" onclick="toggleToolSection(\'sec-quote\')">Cerrar</button></div>\
+  <div id="quote-form-area">\
+    <div class="quote-form">\
+      <label>Empresa<input type="text" id="q-empresa" placeholder="Nombre de la empresa"></label>\
+      <label>Contacto<input type="text" id="q-contacto" placeholder="Nombre del contacto"></label>\
+      <label>Email<input type="email" id="q-email" placeholder="email@empresa.com"></label>\
+      <label>Ad spend estimado\
+        <select id="q-adspend">\
+          <option value="$50K-$100K MXN">$50K-$100K</option>\
+          <option value="$100K-$200K MXN">$100K-$200K</option>\
+          <option value="$200K+ MXN">$200K+</option>\
+        </select>\
+      </label>\
+      <label>Servicio\
+        <select id="q-servicio">\
+          <option value="Google Ads + Landing + CRM" data-price="25000" data-setup="15000">Google Ads + Landing + CRM ($25K)</option>\
+          <option value="Solo Google Ads" data-price="15000" data-setup="8000">Solo Google Ads ($15K)</option>\
+          <option value="Consultoria" data-price="10000" data-setup="5000">Consultoria ($10K)</option>\
+        </select>\
+      </label>\
+      <label class="full-width">Notas<textarea id="q-notas" placeholder="Notas adicionales (opcional)"></textarea></label>\
+      <button class="quote-gen-btn" onclick="generateQuote()">Generar PDF</button>\
+    </div>\
+  </div>\
+  <div id="quote-preview-area"></div>\
+</div>\
+\
+<!-- SECTION: Portafolio -->\
+<div id="sec-portfolio" class="tool-section">\
+  <div class="tool-section-header"><h2>Portafolio de Clientes</h2><button class="tool-close-btn" onclick="toggleToolSection(\'sec-portfolio\')">Cerrar</button></div>\
+  <h3 style="font-size:0.875rem;font-weight:700;margin-bottom:12px;color:var(--accent)">Ecommerce</h3>\
+  <div class="port-grid" style="margin-bottom:20px">\
+    <div class="port-card"><h4>Arma Tu Closet</h4><p>Closets modulares</p></div>\
+    <div class="port-card"><h4>Golf Club Maker</h4><p>Palos de golf usados</p></div>\
+    <div class="port-card"><h4>Terra Mano</h4><p>Cafe de especialidad</p></div>\
+    <div class="port-card"><h4>All Right Chef Tools</h4><p>Cuchillos de chef</p></div>\
+    <div class="port-card"><h4>Marama</h4><p>Haircare natural</p></div>\
+    <div class="port-card"><h4>Preslow</h4><p>Ropa corporativa</p></div>\
+    <div class="port-card"><h4>Barba Real</h4><p>Grooming masculino</p></div>\
+    <div class="port-card"><h4>Dimas Muebles</h4><p>Muebles modernos</p></div>\
+    <div class="port-card"><h4>ECM</h4><p>Ecommerce</p></div>\
+    <div class="port-card"><h4>Electric Neon</h4><p>Letreros LED neon</p></div>\
+  </div>\
+  <h3 style="font-size:0.875rem;font-weight:700;margin-bottom:12px;color:var(--accent)">Lead Gen</h3>\
+  <div class="port-grid" style="margin-bottom:20px">\
+    <div class="port-card"><h4>Nichiboku</h4><p>Export MX a Japon</p></div>\
+    <div class="port-card"><h4>Eco Ambiente</h4><p>Residuos industriales</p></div>\
+    <div class="port-card"><h4>Gazeti</h4><p>Telecom wholesale</p></div>\
+    <div class="port-card"><h4>EV Battery</h4><p>Baterias EV</p></div>\
+    <div class="port-card"><h4>Pro Medical Oxygen</h4><p>Oxigeno medicinal</p></div>\
+  </div>\
+  <h3 style="font-size:0.875rem;font-weight:700;margin-bottom:12px;color:var(--accent)">Nuevos</h3>\
+  <div class="port-grid" style="margin-bottom:20px">\
+    <div class="port-card"><h4>Euro Diesel</h4><p>Diesel y combustibles</p></div>\
+    <div class="port-card"><h4>PCM Experts</h4><p>Consultoria</p></div>\
+  </div>\
+  <div class="port-stats">20 clientes | $2M MXN/mes gestionados | 15 industrias | 3 seniors</div>\
+  <p style="color:var(--muted);font-size:0.8125rem;margin-top:12px">Casos de exito detallados proximamente</p>\
+</div>\
+\
+<!-- SECTION: Emails -->\
+<div id="sec-emails" class="tool-section">\
+  <div class="tool-section-header"><h2>Secuencia B2B Lead Gen</h2><button class="tool-close-btn" onclick="toggleToolSection(\'sec-emails\')">Cerrar</button></div>\
+  <div class="email-card">\
+    <h4>Email 1 — Primer contacto</h4>\
+    <div class="email-subject">Subject: {{first_name}}, vi algo en sus anuncios</div>\
+    <pre id="email-body-1">{{first_name}},\n\nVi que {{company}} tiene campanas activas en Google Ads.\n\nLe eche un ojo rapido y {{primera_linea_personalizada}}.\n\nEn PSL manejamos Google Ads para 20 empresas aqui en Mexico — ese tema lo vemos mucho y por lo general se traduce en un 15-30% del presupuesto que se va sin generar nada.\n\nTienen 15 minutos esta semana? Les platico que encontre.\n\nAxel Torres\nDirector — Paid Search Lab\npaidsearchlab.io</pre>\
+    <button class="copy-btn" onclick="copyEmail(this,\'email-body-1\')">Copiar</button>\
+  </div>\
+  <div class="email-card">\
+    <h4>Email 2 — Caso de exito</h4>\
+    <div class="email-subject">Subject: lo que paso con una empresa como {{company}}</div>\
+    <pre id="email-body-2">{{first_name}},\n\nUn cliente nuestro en {{industria}} tenia el mismo problema que vi en las campanas de {{company}} — estaban quemando presupuesto por estructura de campanas, no por falta de lana.\n\nEn 60 dias su ROAS subio 2.1x sin mover un peso mas de presupuesto.\n\nLo que cambiamos fue pura estructura — grupos de anuncios, match types, segmentacion. Nada de "metanle mas dinero".\n\nQuiere que le cuente que aplicaria para {{company}}?\n\nAxel</pre>\
+    <button class="copy-btn" onclick="copyEmail(this,\'email-body-2\')">Copiar</button>\
+  </div>\
+  <div class="email-card">\
+    <h4>Email 3 — Valor concreto</h4>\
+    <div class="email-subject">Subject: {{first_name}} — le prepare algo</div>\
+    <pre id="email-body-3">{{first_name}},\n\nMe tome un rato para revisar con mas detalle las campanas de {{company}} en Google.\n\nHay cosas que se pueden mejorar rapido:\n\n- Los match types estan trayendo busquedas que no tienen nada que ver con lo que venden\n- Tienen extensiones de anuncio apagadas — eso les baja el CTR sin razon\n- Los anuncios corren en horarios donde su tipo de cliente no esta buscando\n\nSi quiere, le muestro todo en una llamada de 20 minutos. Sin rollo.\n\nAxel Torres\npaidsearchlab.io</pre>\
+    <button class="copy-btn" onclick="copyEmail(this,\'email-body-3\')">Copiar</button>\
+  </div>\
+  <div class="email-card">\
+    <h4>Email 4 — Breakup</h4>\
+    <div class="email-subject">Subject: cierro por ahora, {{first_name}}</div>\
+    <pre id="email-body-4">{{first_name}},\n\nSe que a veces no es el momento. Sin problema.\n\nSi mas adelante quieren que alguien les revise las campanas de Google Ads con ojos frescos, aqui andamos.\n\nMucho exito con {{company}}.\n\nAxel\nPaid Search Lab — paidsearchlab.io\n\nP.D. Si prefieren que no les escriba mas, nada mas respondan y listo.</pre>\
+    <button class="copy-btn" onclick="copyEmail(this,\'email-body-4\')">Copiar</button>\
+  </div>\
+</div>\
+\
+<!-- SECTION: Discovery -->\
+<div id="sec-discovery" class="tool-section">\
+  <div class="tool-section-header"><h2>Guion Discovery</h2><button class="tool-close-btn" onclick="toggleToolSection(\'sec-discovery\')">Cerrar</button></div>\
+  <h3 style="font-size:1rem;font-weight:700;margin-bottom:16px">Framework SPIN</h3>\
+  <div class="spin-section"><h4>S — Situation</h4><ul>\
+    <li>Cuanto invierten al mes en Google Ads?</li>\
+    <li>Quien gestiona las campanas actualmente?</li>\
+    <li>Que herramientas usan para medir resultados?</li>\
+    <li>Cuanto tiempo llevan corriendo campanas?</li>\
+  </ul></div>\
+  <div class="spin-section"><h4>P — Problem</h4><ul>\
+    <li>Que porcentaje de su presupuesto sienten que se desperdicia?</li>\
+    <li>Cuales son los principales retos con sus campanas?</li>\
+    <li>Estan conformes con el ROAS actual?</li>\
+    <li>Con que frecuencia revisan y optimizan?</li>\
+  </ul></div>\
+  <div class="spin-section"><h4>I — Implication</h4><ul>\
+    <li>Si siguen asi 6 meses mas, cuanto presupuesto se pierde?</li>\
+    <li>Como afecta eso sus metas de crecimiento?</li>\
+    <li>Que pasa si la competencia optimiza antes?</li>\
+    <li>Cuanto les cuesta cada lead que no se convierte?</li>\
+  </ul></div>\
+  <div class="spin-section"><h4>N — Need-Payoff</h4><ul>\
+    <li>Si pudieran duplicar su ROAS, que significaria para el negocio?</li>\
+    <li>Cuanto valdria reducir su costo por lead un 30%?</li>\
+    <li>Que harian con el presupuesto que se recupera?</li>\
+  </ul></div>\
+  <h3 style="font-size:1rem;font-weight:700;margin:24px 0 16px">Framework MEDDPICC</h3>\
+  <div class="spin-section"><h4>Metrics</h4><ul><li>Cuales son sus KPIs principales? ROAS, CPA, CPL?</li></ul></div>\
+  <div class="spin-section"><h4>Economic Buyer</h4><ul><li>Quien toma la decision final de inversion en marketing?</li></ul></div>\
+  <div class="spin-section"><h4>Decision Criteria</h4><ul><li>Que criterios usan para evaluar a una agencia?</li></ul></div>\
+  <div class="spin-section"><h4>Decision Process</h4><ul><li>Como es su proceso para contratar un servicio asi? Quienes participan?</li></ul></div>\
+  <div class="spin-section"><h4>Identify Pain</h4><ul><li>Cual es el problema mas urgente con sus campanas ahora mismo?</li></ul></div>\
+  <div class="spin-section"><h4>Champion</h4><ul><li>Hay alguien internamente que ya este buscando mejorar esto?</li></ul></div>\
+  <div class="spin-section"><h4>Competition</h4><ul><li>Estan evaluando otras opciones? Que les han propuesto?</li></ul></div>\
+  <h3 style="font-size:1rem;font-weight:700;margin:24px 0 16px">Checklist Pre-Call</h3>\
+  <div class="checklist-item">1. Revisar sitio web y landing pages del prospecto</div>\
+  <div class="checklist-item">2. Buscar sus anuncios activos en Google/Meta</div>\
+  <div class="checklist-item">3. Investigar competidores en su industria</div>\
+  <div class="checklist-item">4. Preparar 2-3 hallazgos especificos de mejora</div>\
+  <div class="checklist-item">5. Tener pricing listo segun su ad spend estimado</div>\
+</div>\
+\
+<!-- SECTION: Objeciones -->\
+<div id="sec-objections" class="tool-section">\
+  <div class="tool-section-header"><h2>Manejo de Objeciones</h2><button class="tool-close-btn" onclick="toggleToolSection(\'sec-objections\')">Cerrar</button></div>\
+  <div class="obj-card">\
+    <h4>Objecion 1</h4>\
+    <div class="obj-objection">"Es muy caro"</div>\
+    <div class="obj-response">Cuanto gastas al mes en ads? Si son $100K, nuestro fee de $25K es el 25%. Si mejoramos tu ROAS un 20%, son $20K mas en ventas. El fee se paga solo.</div>\
+  </div>\
+  <div class="obj-card">\
+    <h4>Objecion 2</h4>\
+    <div class="obj-objection">"Ya tengo agencia"</div>\
+    <div class="obj-response">Perfecto. Cuando fue la ultima vez que te mostraron algo nuevo que no esperabas? El diagnostico es gratis. Si tu agencia lo esta haciendo bien, te lo digo y no pierdes nada.</div>\
+  </div>\
+  <div class="obj-card">\
+    <h4>Objecion 3</h4>\
+    <div class="obj-objection">"No tengo presupuesto"</div>\
+    <div class="obj-response">Cuanto inviertes hoy en ads? Si la respuesta es >$50K, ya tienes presupuesto. La pregunta es si ese dinero esta trabajando bien. El diagnostico te dice exactamente eso.</div>\
+  </div>\
+  <div class="obj-card">\
+    <h4>Objecion 4</h4>\
+    <div class="obj-objection">"Necesito pensarlo"</div>\
+    <div class="obj-response">Total. Que informacion te falta para decidir? Si es sobre resultados, te puedo compartir un caso de exito en tu industria.</div>\
+  </div>\
+</div>\
+\
+<!-- SECTION: Comparativo -->\
+<div id="sec-compare" class="tool-section">\
+  <div class="tool-section-header"><h2>Comparativo PSL</h2><button class="tool-close-btn" onclick="toggleToolSection(\'sec-compare\')">Cerrar</button></div>\
+  <div style="overflow-x:auto">\
+  <table class="comp-table">\
+    <thead><tr><th></th><th>Agencia Grande</th><th>Freelancer</th><th>In-House</th><th>PSL</th></tr></thead>\
+    <tbody>\
+      <tr><td style="font-weight:700">Quien opera</td><td>Junior rotando</td><td>1 persona</td><td>1 persona</td><td>Senior dedicado</td></tr>\
+      <tr><td style="font-weight:700">Cuentas/persona</td><td>30+</td><td>5-8</td><td>1</td><td>5-10</td></tr>\
+      <tr><td style="font-weight:700">Revision</td><td>Mensual</td><td>Variable</td><td>Diaria sin contexto</td><td>Semanal con benchmarks</td></tr>\
+      <tr><td style="font-weight:700">Benchmarks</td><td>Genericos</td><td>No tiene</td><td>Solo su cuenta</td><td>20 cuentas, 15 industrias</td></tr>\
+      <tr><td style="font-weight:700">Costo</td><td>$30-80K MXN</td><td>$5-15K MXN</td><td>$25-40K salario</td><td>$25K MXN fee</td></tr>\
+      <tr><td style="font-weight:700">Respaldo</td><td>Otro junior</td><td>Nadie</td><td>Nadie</td><td>Equipo de 3 seniors</td></tr>\
+      <tr><td style="font-weight:700">Contrato</td><td>6-12 meses</td><td>Variable</td><td>Indefinido</td><td>3 meses, luego libre</td></tr>\
+    </tbody>\
+  </table>\
+  </div>\
+</div>\
+';
+}
+
+// -- TOOLS HELPERS --
+function toggleToolSection(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var isVisible = el.classList.contains('visible');
+  document.querySelectorAll('.tool-section').forEach(function(s) { s.classList.remove('visible'); });
+  if (!isVisible) el.classList.add('visible');
+}
+
+function copyEmail(btn, preId) {
+  var pre = document.getElementById(preId);
+  if (!pre) return;
+  var text = pre.textContent;
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = 'Copiado';
+    setTimeout(function() { btn.textContent = 'Copiar'; }, 2000);
+  });
+}
+
+function generateQuote() {
+  var empresa = document.getElementById('q-empresa').value || 'Empresa';
+  var contacto = document.getElementById('q-contacto').value || 'Contacto';
+  var email = document.getElementById('q-email').value || '';
+  var adspend = document.getElementById('q-adspend').value;
+  var servicioSel = document.getElementById('q-servicio');
+  var servicio = servicioSel.value;
+  var price = servicioSel.options[servicioSel.selectedIndex].getAttribute('data-price');
+  var setup = servicioSel.options[servicioSel.selectedIndex].getAttribute('data-setup');
+  var notas = document.getElementById('q-notas').value;
+  var today = new Date();
+  var fecha = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+  var priceNum = parseInt(price);
+  var setupNum = parseInt(setup);
+  var totalMensual = '$' + priceNum.toLocaleString() + ' MXN';
+  var totalSetup = '$' + setupNum.toLocaleString() + ' MXN';
+
+  var html = '<div class="quote-preview">';
+  html += '<div style="font-size:1.5rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px">PSL<span style="color:#ff0310">.</span>OS</div>';
+  html += '<h2>Propuesta Comercial para ' + esc(empresa) + '</h2>';
+  html += '<div class="qp-date">Fecha: ' + fecha + '</div>';
+  html += '<div class="qp-label">Contacto</div>';
+  html += '<p>' + esc(contacto) + (email ? ' &mdash; ' + esc(email) : '') + '</p>';
+  html += '<div class="qp-label">Ad Spend Estimado</div>';
+  html += '<p>' + esc(adspend) + '</p>';
+  if (notas) {
+    html += '<div class="qp-label">Notas</div>';
+    html += '<p>' + esc(notas) + '</p>';
+  }
+  html += '<table><thead><tr><th>Servicio</th><th>Fee Mensual</th></tr></thead>';
+  html += '<tbody><tr><td>' + esc(servicio) + '</td><td>' + totalMensual + '</td></tr></tbody></table>';
+  html += '<table><thead><tr><th>Concepto</th><th>Monto</th></tr></thead>';
+  html += '<tbody><tr><td>Setup fee</td><td>' + totalSetup + '</td></tr></tbody></table>';
+  html += '<div class="qp-total">Total mensual: ' + totalMensual + ' | Setup: ' + totalSetup + '</div>';
+  html += '<div class="qp-terms">';
+  html += '<strong>Garantia:</strong> 60 dias. Si no ves mejora medible, cancelas sin penalidad.<br>';
+  html += '<strong>Terminos:</strong> Compromiso minimo de 3 meses, despues mes a mes.<br>';
+  html += '<strong>Incluye:</strong> Gestion completa, reportes semanales, optimizacion continua.';
+  html += '</div>';
+  html += '<div class="qp-firma">';
+  html += '<strong>Axel Torres</strong><br>Director &mdash; Paid Search Lab<br>paidsearchlab.io';
+  html += '</div>';
+  html += '<button class="quote-print-btn" onclick="window.print()">Imprimir / PDF</button>';
+  html += '</div>';
+
+  document.getElementById('quote-preview-area').innerHTML = html;
+}
+
+// =========================================
 // TAB NAVIGATION
 // =========================================
 var tabLoaded = { dashboard: false, scores: false, health: false, salesplan: false, tools: false };
