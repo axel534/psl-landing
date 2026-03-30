@@ -1125,7 +1125,7 @@ function loadDashboard() {
     supaFetch('revenue_mensual?select=*,clientes(nombre,estado)&mes=eq.2026-03&order=fee_facturado.desc'),
     supaFetch('prospectos?select=empresa,etapa,temperatura,prioridad,fee_propuesto,ad_spend_estimado,fecha_proximo_contacto&order=ad_spend_estimado.desc.nullslast'),
     supaFetch('actividades_comerciales?select=tipo,descripcion,resultado,fecha,canal&order=fecha.desc&limit=5'),
-    supaFetch('prospectos?select=empresa,etapa,fecha_proximo_contacto,temperatura&fecha_proximo_contacto=lte.' + new Date().toISOString().split('T')[0])
+    supaFetch('actividades_comerciales?select=siguiente_accion,fecha_siguiente_accion,tipo,canal&fecha_siguiente_accion=gte.' + new Date().toISOString().split('T')[0] + '&order=fecha_siguiente_accion.asc')
   ]).then(function(results) {
     var revenueData = results[0];
     var prospectos = results[1];
@@ -1230,13 +1230,14 @@ function loadDashboard() {
     // Pending actions
     if (!Array.isArray(pending) || pending.length === 0) {
       document.getElementById('d-pendingContainer').innerHTML =
-        '<div class="no-alerts">Sin acciones pendientes para hoy.</div>';
+        '<div class="no-alerts">Sin acciones pendientes.</div>';
     } else {
       var pendHtml = '';
       pending.forEach(function(p) {
+        var fechaColor = p.fecha_siguiente_accion <= new Date().toISOString().split('T')[0] ? 'var(--danger)' : 'var(--muted)';
         pendHtml += '<div class="alert-card">' +
-          '<div class="alert-icon">!</div>' +
-          '<div class="alert-text"><strong>' + esc(p.empresa || '--') + '</strong> <span>(' + esc(p.etapa || '--') + ') -- Contactar antes de ' + fmtDate(p.fecha_proximo_contacto) + '</span></div>' +
+          '<div class="alert-icon" style="background:' + fechaColor + ';">!</div>' +
+          '<div class="alert-text"><strong style="color:' + fechaColor + ';">' + fmtDate(p.fecha_siguiente_accion) + '</strong> ' + esc(p.siguiente_accion || '--') + ' <span style="color:var(--muted);font-size:0.75rem;">(' + esc(p.canal || '') + ')</span></div>' +
         '</div>';
       });
       document.getElementById('d-pendingContainer').innerHTML = pendHtml;
