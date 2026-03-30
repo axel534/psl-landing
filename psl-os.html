@@ -1656,10 +1656,23 @@ function loadSalesPlan() {
     // ── SECTION 1: NUMEROS CLAVE ──
     html += '<div class="section-label" style="padding-top:0;">Numeros Clave</div>';
     html += '<div class="sp-grid4">';
+    // Calcular pipeline potencial
+    var pipelineBruto = 0;
+    var valorPonderado = 0;
+    var potencialCierre = 0;
+    if (Array.isArray(prospectos)) {
+      prospectos.forEach(function(p) {
+        var fee = p.fee_propuesto || 0;
+        pipelineBruto += fee;
+        var prob = p.etapa === 'negociacion' ? 0.80 : p.etapa === 'propuesta' ? 0.60 : p.etapa === 'discovery' ? 0.40 : p.etapa === 'contactado' ? 0.20 : 0.10;
+        valorPonderado += Math.round(fee * prob);
+        if (p.etapa === 'negociacion') potencialCierre += fee;
+      });
+    }
     html += '<div class="sp-card-big"><div class="sp-label">MRR Actual</div><div class="sp-value">' + fmt(mrrActual) + '</div></div>';
-    html += '<div class="sp-card-big"><div class="sp-label">Meta MRR Dic 2026</div><div class="sp-value">' + fmt(metaMRR) + '</div></div>';
-    html += '<div class="sp-card-big"><div class="sp-label">Clientes Activos</div><div class="sp-value">' + clientesActivos + '</div></div>';
-    html += '<div class="sp-card-big"><div class="sp-label">Fee Promedio</div><div class="sp-value">' + fmt(feePromedio) + '</div></div>';
+    html += '<div class="sp-card-big" style="border-color:var(--green);"><div class="sp-label">Potencial de Cierre</div><div class="sp-value" style="color:var(--green);">' + fmt(potencialCierre) + '/mes</div><div class="sp-meta">Deals en negociacion (80% prob)</div></div>';
+    html += '<div class="sp-card-big"><div class="sp-label">Pipeline Bruto</div><div class="sp-value">' + fmt(pipelineBruto) + '/mes</div><div class="sp-meta">Si cerraras todo</div></div>';
+    html += '<div class="sp-card-big" style="border-color:var(--accent);"><div class="sp-label">Valor Ponderado</div><div class="sp-value" style="color:var(--accent);">' + fmt(valorPonderado) + '/mes</div><div class="sp-meta">Ajustado por probabilidad</div></div>';
     html += '</div>';
 
     // ── SECTION 2: PROYECCION MENSUAL ──
