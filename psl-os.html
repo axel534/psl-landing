@@ -1560,8 +1560,8 @@ function loadSalesPlan() {
   var oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
   Promise.all([
-    supaFetch('revenue_mensual?select=*&mes=eq.2026-03-01&fee_facturado=gt.0'),
-    supaFetch('prospectos?select=id,fee_propuesto,etapa&etapa=not.in.(cerrado_ganado,cerrado_perdido,descartado)'),
+    supaFetch('revenue_mensual?select=*&mes=eq.2026-03&fee_facturado=gt.0'),
+    supaFetch('prospectos?select=id,empresa,contacto_nombre,contacto_email,fee_propuesto,etapa,temperatura,industria,tiene_google_ads,sitio_web,ad_spend_estimado&etapa=not.in.(cerrado_ganado,cerrado_perdido,descartado)&order=etapa.asc,temperatura.desc,ad_spend_estimado.desc.nullslast'),
     supaFetch('actividades_comerciales?select=id,tipo&created_at=gte.' + oneWeekAgo),
     supaFetch('prospectos?select=id&etapa=eq.cerrado_ganado&updated_at=gte.' + oneWeekAgo)
   ]).then(function(results) {
@@ -1668,9 +1668,9 @@ function loadSalesPlan() {
     var pipelineBruto = 0;
     var valorPonderado = 0;
     var potencialCierre = 0;
-    if (Array.isArray(prospectos)) {
-      prospectos.forEach(function(p) {
-        var fee = p.fee_propuesto || 0;
+    if (Array.isArray(prospectosData)) {
+      prospectosData.forEach(function(p) {
+        var fee = Number(p.fee_propuesto || 0);
         pipelineBruto += fee;
         var prob = p.etapa === 'negociacion' ? 0.80 : p.etapa === 'propuesta' ? 0.60 : p.etapa === 'discovery' ? 0.40 : p.etapa === 'contactado' ? 0.20 : 0.10;
         valorPonderado += Math.round(fee * prob);
@@ -1756,6 +1756,57 @@ function loadSalesPlan() {
     html += '<tr><td>LTV:CAC</td><td>~100:1</td><td>&gt;10:1</td><td style="color:var(--green);">OK</td></tr>';
     html += '<tr><td>Dias de cobranza</td><td>--</td><td>&lt;30 dias</td><td>--</td></tr>';
     html += '</tbody></table>';
+    html += '</div>';
+
+    // ── SECTION 7: PIPELINE COMPLETO ──
+    html += '<div class="section-label">Pipeline Completo — Prospectos por Tier</div>';
+
+    // Clasificar por tier
+    var t1 = [], t2 = [], t3 = [];
+    prospectosData.forEach(function(p) {
+      if (p.etapa === 'negociacion' || p.etapa === 'propuesta' || p.etapa === 'discovery') {
+        t1.push(p);
+      } else if (p.tiene_google_ads === true || p.temperatura === 'warm') {
+        t2.push(p);
+      } else {
+        t3.push(p);
+      }
+    });
+
+    function renderTier(tierName, tierColor, tierDesc, list) {
+      var h = '<div style="margin-bottom:24px;">';
+      h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">';
+      h += '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:' + tierColor + ';"></span>';
+      h += '<span style="font-weight:700;font-size:1rem;">' + tierName + '</span>';
+      h += '<span style="color:var(--muted);font-size:0.8125rem;">(' + list.length + ' prospectos) — ' + tierDesc + '</span>';
+      h += '</div>';
+      if (list.length === 0) {
+        h += '<div style="color:var(--muted);padding:12px;">Sin prospectos en este tier.</div>';
+      } else {
+        h += '<table class="sp-table"><thead><tr><th>Empresa</th><th>Contacto</th><th>Industria</th><th>Etapa</th><th>Google Ads</th><th>Fee Est.</th></tr></thead><tbody>';
+        list.forEach(function(p) {
+          var etapaColor = p.etapa === 'negociacion' ? 'var(--green)' : p.etapa === 'discovery' ? 'var(--accent)' : p.etapa === 'contactado' ? 'var(--yellow)' : 'var(--muted)';
+          var gadsIcon = p.tiene_google_ads === true ? '<span style="color:var(--green);">Si</span>' : p.tiene_google_ads === false ? '<span style="color:var(--muted);">No</span>' : '<span style="color:var(--muted);">--</span>';
+          var fee = p.fee_propuesto ? fmt(Number(p.fee_propuesto)) : '--';
+          h += '<tr>';
+          h += '<td><strong>' + esc(p.empresa || '--') + '</strong><br><span style="color:var(--muted);font-size:0.75rem;">' + esc(p.sitio_web || '') + '</span></td>';
+          h += '<td>' + esc(p.contacto_nombre || '--') + '<br><span style="color:var(--muted);font-size:0.75rem;">' + esc(p.contacto_email || '') + '</span></td>';
+          h += '<td>' + esc(p.industria || '--') + '</td>';
+          h += '<td><span style="color:' + etapaColor + ';font-weight:600;">' + esc(p.etapa || '--') + '</span></td>';
+          h += '<td>' + gadsIcon + '</td>';
+          h += '<td>' + fee + '</td>';
+          h += '</tr>';
+        });
+        h += '</tbody></table>';
+      }
+      h += '</div>';
+      return h;
+    }
+
+    html += '<div class="sp-card" style="padding:20px 24px;">';
+    html += renderTier('TIER 1 — En proceso', 'var(--green)', 'Negociacion, discovery, propuesta', t1);
+    html += renderTier('TIER 2 — Warm', 'var(--accent)', 'Google Ads verificado o temperatura warm', t2);
+    html += renderTier('TIER 3 — Cold', 'var(--muted)', 'Identificados, sin verificar', t3);
     html += '</div>';
 
     container.innerHTML = html;
